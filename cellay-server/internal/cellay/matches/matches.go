@@ -1,4 +1,4 @@
-package games
+package matches
 
 import (
 	"go.uber.org/fx"
@@ -9,7 +9,7 @@ import (
 )
 
 type Service struct {
-	cellayv1.UnimplementedGamesServiceServer
+	cellayv1.UnimplementedMatchesServiceServer
 }
 
 type Params struct {
@@ -21,7 +21,7 @@ type Params struct {
 
 func NewService(p Params) *Service {
 	s := &Service{}
-	cellayv1.RegisterGamesServiceServer(p.GRPCServer, s)
-	p.HTTPServer.RegisterService(cellayv1.RegisterGamesServiceHandler)
+	cellayv1.RegisterMatchesServiceServer(p.GRPCServer, s)
+	p.HTTPServer.RegisterService(cellayv1.RegisterMatchesServiceHandler)
 	return s
 }
