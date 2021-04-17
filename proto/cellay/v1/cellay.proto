@@ -34,7 +34,24 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   }
 };
 
+message MatchesServiceStartRequest {
+  int32 game_id = 1;
+}
+
+message MatchesServiceStartResponse {
+  string id = 1;
+}
+
 service MatchesService {
+  rpc Start(MatchesServiceStartRequest) returns (MatchesServiceStartResponse) {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      description: "Start new match";
+    };
+    option (google.api.http) = {
+      post: "/matches/start";
+      body: "*";
+    };
+  };
 }
 
 service AssetsService {
