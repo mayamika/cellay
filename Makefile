@@ -1,3 +1,9 @@
+.SUFFIXES:
+
+SHELL	?= /bin/bash
+CURL	?= curl --silent
+GO		?= go
+
 # DIRS
 
 # build
@@ -18,10 +24,11 @@ PROTO_DIR := proto
 
 DEP_DIRS = $(BIN_OUTPUT_DIR) $(DOWNLOAD_CACHE_DIR) $(TOOLS_BIN_DIR)
 $(DEP_DIRS):
-	-mkdir -p "$@"
+	-mkdir -p $(DEP_DIRS)
 
 # TOOLS
 
+TOOLS_MODFILE := tools/go.mod
 define install-go-tool =
 	$(GO) build \
 		-o $(TOOLS_BIN_DIR) \

@@ -1,0 +1,6 @@
+# editors
+/.vscode
+
+# dirs
+/build
+/bin

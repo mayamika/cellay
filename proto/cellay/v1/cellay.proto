@@ -3,6 +3,7 @@ package cellay.v1;
 
 option go_package = "github.com/mayamika/cellay/proto/cellay/v1;cellayv1";
 
+import "google/api/annotations.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
