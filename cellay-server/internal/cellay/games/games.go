@@ -12,9 +12,6 @@ type Service struct {
 	cellayv1.UnimplementedGamesServiceServer
 }
 
-type Config struct {
-}
-
 type Params struct {
 	fx.In
 
