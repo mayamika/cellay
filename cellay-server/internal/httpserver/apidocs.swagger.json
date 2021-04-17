@@ -6,6 +6,9 @@
   },
   "tags": [
     {
+      "name": "GamesService"
+    },
+    {
       "name": "MatchesService"
     }
   ],
@@ -20,6 +23,40 @@
     "application/json"
   ],
   "paths": {
+    "/games": {
+      "get": {
+        "description": "Return all games list",
+        "operationId": "GamesService_GetAll",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GamesServiceGetAllResponse"
+            }
+          },
+          "403": {
+            "description": "Returned when the user does not have permission to access the resource.",
+            "schema": {}
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "GamesService"
+        ]
+      }
+    },
     "/matches/start": {
       "post": {
         "description": "Start new match",
@@ -93,6 +130,36 @@
           "items": {
             "$ref": "#/definitions/protobufAny"
           }
+        }
+      }
+    },
+    "v1GamesServiceGetAllResponse": {
+      "type": "object",
+      "properties": {
+        "games": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1GamesServiceGetResponse"
+          }
+        },
+        "total": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "v1GamesServiceGetResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
         }
       }
     },

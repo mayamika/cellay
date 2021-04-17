@@ -14,6 +14,92 @@ import (
 // Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
+// GamesServiceClient is the client API for GamesService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type GamesServiceClient interface {
+	GetAll(ctx context.Context, in *GamesServiceGetAllRequest, opts ...grpc.CallOption) (*GamesServiceGetAllResponse, error)
+}
+
+type gamesServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewGamesServiceClient(cc grpc.ClientConnInterface) GamesServiceClient {
+	return &gamesServiceClient{cc}
+}
+
+func (c *gamesServiceClient) GetAll(ctx context.Context, in *GamesServiceGetAllRequest, opts ...grpc.CallOption) (*GamesServiceGetAllResponse, error) {
+	out := new(GamesServiceGetAllResponse)
+	err := c.cc.Invoke(ctx, "/cellay.v1.GamesService/GetAll", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// GamesServiceServer is the server API for GamesService service.
+// All implementations must embed UnimplementedGamesServiceServer
+// for forward compatibility
+type GamesServiceServer interface {
+	GetAll(context.Context, *GamesServiceGetAllRequest) (*GamesServiceGetAllResponse, error)
+	mustEmbedUnimplementedGamesServiceServer()
+}
+
+// UnimplementedGamesServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedGamesServiceServer struct {
+}
+
+func (UnimplementedGamesServiceServer) GetAll(context.Context, *GamesServiceGetAllRequest) (*GamesServiceGetAllResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAll not implemented")
+}
+func (UnimplementedGamesServiceServer) mustEmbedUnimplementedGamesServiceServer() {}
+
+// UnsafeGamesServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to GamesServiceServer will
+// result in compilation errors.
+type UnsafeGamesServiceServer interface {
+	mustEmbedUnimplementedGamesServiceServer()
+}
+
+func RegisterGamesServiceServer(s grpc.ServiceRegistrar, srv GamesServiceServer) {
+	s.RegisterService(&GamesService_ServiceDesc, srv)
+}
+
+func _GamesService_GetAll_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GamesServiceGetAllRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GamesServiceServer).GetAll(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/cellay.v1.GamesService/GetAll",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GamesServiceServer).GetAll(ctx, req.(*GamesServiceGetAllRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// GamesService_ServiceDesc is the grpc.ServiceDesc for GamesService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var GamesService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "cellay.v1.GamesService",
+	HandlerType: (*GamesServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "GetAll",
+			Handler:    _GamesService_GetAll_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "cellay/v1/cellay.proto",
+}
+
 // MatchesServiceClient is the client API for MatchesService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.

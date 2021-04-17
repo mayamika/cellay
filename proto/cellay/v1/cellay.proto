@@ -34,6 +34,28 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   }
 };
 
+message GamesServiceGetResponse {
+  int32 id = 1;
+  string name = 2;
+  string description = 3;
+}
+
+message GamesServiceGetAllRequest {}
+
+message GamesServiceGetAllResponse {
+  repeated GamesServiceGetResponse games = 1;
+  int32 total = 2;
+}
+
+service GamesService {
+  rpc GetAll(GamesServiceGetAllRequest) returns (GamesServiceGetAllResponse) {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      description: "Return all games list";
+    };
+    option (google.api.http).get = "/games";
+  }
+}
+
 message MatchesServiceStartRequest {
   int32 game_id = 1;
 }
