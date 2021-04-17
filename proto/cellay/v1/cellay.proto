@@ -56,21 +56,21 @@ service GamesService {
   }
 }
 
-message MatchesServiceStartRequest {
+message MatchesServiceNewRequest {
   int32 game_id = 1;
 }
 
-message MatchesServiceStartResponse {
+message MatchesServiceNewResponse {
   string id = 1;
 }
 
 service MatchesService {
-  rpc Start(MatchesServiceStartRequest) returns (MatchesServiceStartResponse) {
+  rpc New(MatchesServiceNewRequest) returns (MatchesServiceNewResponse) {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       description: "Start new match";
     };
     option (google.api.http) = {
-      post: "/matches/start";
+      post: "/matches";
       body: "*";
     };
   };

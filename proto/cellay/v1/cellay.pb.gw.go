@@ -49,8 +49,8 @@ func local_request_GamesService_GetAll_0(ctx context.Context, marshaler runtime.
 
 }
 
-func request_MatchesService_Start_0(ctx context.Context, marshaler runtime.Marshaler, client MatchesServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq MatchesServiceStartRequest
+func request_MatchesService_New_0(ctx context.Context, marshaler runtime.Marshaler, client MatchesServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq MatchesServiceNewRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -61,13 +61,13 @@ func request_MatchesService_Start_0(ctx context.Context, marshaler runtime.Marsh
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := client.Start(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.New(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
 }
 
-func local_request_MatchesService_Start_0(ctx context.Context, marshaler runtime.Marshaler, server MatchesServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq MatchesServiceStartRequest
+func local_request_MatchesService_New_0(ctx context.Context, marshaler runtime.Marshaler, server MatchesServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq MatchesServiceNewRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -78,7 +78,7 @@ func local_request_MatchesService_Start_0(ctx context.Context, marshaler runtime
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := server.Start(ctx, &protoReq)
+	msg, err := server.New(ctx, &protoReq)
 	return msg, metadata, err
 
 }
@@ -121,18 +121,18 @@ func RegisterGamesServiceHandlerServer(ctx context.Context, mux *runtime.ServeMu
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterMatchesServiceHandlerFromEndpoint instead.
 func RegisterMatchesServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server MatchesServiceServer) error {
 
-	mux.Handle("POST", pattern_MatchesService_Start_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_MatchesService_New_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/cellay.v1.MatchesService/Start")
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/cellay.v1.MatchesService/New")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_MatchesService_Start_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_MatchesService_New_0(rctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -140,7 +140,7 @@ func RegisterMatchesServiceHandlerServer(ctx context.Context, mux *runtime.Serve
 			return
 		}
 
-		forward_MatchesService_Start_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_MatchesService_New_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -254,23 +254,23 @@ func RegisterMatchesServiceHandler(ctx context.Context, mux *runtime.ServeMux, c
 // "MatchesServiceClient" to call the correct interceptors.
 func RegisterMatchesServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client MatchesServiceClient) error {
 
-	mux.Handle("POST", pattern_MatchesService_Start_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_MatchesService_New_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/cellay.v1.MatchesService/Start")
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/cellay.v1.MatchesService/New")
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_MatchesService_Start_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_MatchesService_New_0(rctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_MatchesService_Start_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_MatchesService_New_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -278,9 +278,9 @@ func RegisterMatchesServiceHandlerClient(ctx context.Context, mux *runtime.Serve
 }
 
 var (
-	pattern_MatchesService_Start_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"matches", "start"}, ""))
+	pattern_MatchesService_New_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0}, []string{"matches"}, ""))
 )
 
 var (
-	forward_MatchesService_Start_0 = runtime.ForwardResponseMessage
+	forward_MatchesService_New_0 = runtime.ForwardResponseMessage
 )

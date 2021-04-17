@@ -57,15 +57,15 @@
         ]
       }
     },
-    "/matches/start": {
+    "/matches": {
       "post": {
         "description": "Start new match",
-        "operationId": "MatchesService_Start",
+        "operationId": "MatchesService_New",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v1MatchesServiceStartResponse"
+              "$ref": "#/definitions/v1MatchesServiceNewResponse"
             }
           },
           "403": {
@@ -92,7 +92,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/v1MatchesServiceStartRequest"
+              "$ref": "#/definitions/v1MatchesServiceNewRequest"
             }
           }
         ],
@@ -163,7 +163,7 @@
         }
       }
     },
-    "v1MatchesServiceStartRequest": {
+    "v1MatchesServiceNewRequest": {
       "type": "object",
       "properties": {
         "gameId": {
@@ -172,7 +172,7 @@
         }
       }
     },
-    "v1MatchesServiceStartResponse": {
+    "v1MatchesServiceNewResponse": {
       "type": "object",
       "properties": {
         "id": {

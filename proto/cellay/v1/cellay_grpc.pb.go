@@ -104,7 +104,7 @@ var GamesService_ServiceDesc = grpc.ServiceDesc{
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MatchesServiceClient interface {
-	Start(ctx context.Context, in *MatchesServiceStartRequest, opts ...grpc.CallOption) (*MatchesServiceStartResponse, error)
+	New(ctx context.Context, in *MatchesServiceNewRequest, opts ...grpc.CallOption) (*MatchesServiceNewResponse, error)
 }
 
 type matchesServiceClient struct {
@@ -115,9 +115,9 @@ func NewMatchesServiceClient(cc grpc.ClientConnInterface) MatchesServiceClient {
 	return &matchesServiceClient{cc}
 }
 
-func (c *matchesServiceClient) Start(ctx context.Context, in *MatchesServiceStartRequest, opts ...grpc.CallOption) (*MatchesServiceStartResponse, error) {
-	out := new(MatchesServiceStartResponse)
-	err := c.cc.Invoke(ctx, "/cellay.v1.MatchesService/Start", in, out, opts...)
+func (c *matchesServiceClient) New(ctx context.Context, in *MatchesServiceNewRequest, opts ...grpc.CallOption) (*MatchesServiceNewResponse, error) {
+	out := new(MatchesServiceNewResponse)
+	err := c.cc.Invoke(ctx, "/cellay.v1.MatchesService/New", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -128,7 +128,7 @@ func (c *matchesServiceClient) Start(ctx context.Context, in *MatchesServiceStar
 // All implementations must embed UnimplementedMatchesServiceServer
 // for forward compatibility
 type MatchesServiceServer interface {
-	Start(context.Context, *MatchesServiceStartRequest) (*MatchesServiceStartResponse, error)
+	New(context.Context, *MatchesServiceNewRequest) (*MatchesServiceNewResponse, error)
 	mustEmbedUnimplementedMatchesServiceServer()
 }
 
@@ -136,8 +136,8 @@ type MatchesServiceServer interface {
 type UnimplementedMatchesServiceServer struct {
 }
 
-func (UnimplementedMatchesServiceServer) Start(context.Context, *MatchesServiceStartRequest) (*MatchesServiceStartResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Start not implemented")
+func (UnimplementedMatchesServiceServer) New(context.Context, *MatchesServiceNewRequest) (*MatchesServiceNewResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method New not implemented")
 }
 func (UnimplementedMatchesServiceServer) mustEmbedUnimplementedMatchesServiceServer() {}
 
@@ -152,20 +152,20 @@ func RegisterMatchesServiceServer(s grpc.ServiceRegistrar, srv MatchesServiceSer
 	s.RegisterService(&MatchesService_ServiceDesc, srv)
 }
 
-func _MatchesService_Start_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MatchesServiceStartRequest)
+func _MatchesService_New_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MatchesServiceNewRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MatchesServiceServer).Start(ctx, in)
+		return srv.(MatchesServiceServer).New(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/cellay.v1.MatchesService/Start",
+		FullMethod: "/cellay.v1.MatchesService/New",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MatchesServiceServer).Start(ctx, req.(*MatchesServiceStartRequest))
+		return srv.(MatchesServiceServer).New(ctx, req.(*MatchesServiceNewRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -178,8 +178,8 @@ var MatchesService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*MatchesServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Start",
-			Handler:    _MatchesService_Start_Handler,
+			MethodName: "New",
+			Handler:    _MatchesService_New_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
