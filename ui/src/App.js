@@ -1,10 +1,33 @@
 import React from 'react';
+import {makeStyles} from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
-import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
+import Typography from '@material-ui/core/Typography';
 import Link from '@material-ui/core/Link';
-import Menu from './Menu';
-import GameList from './GameList';
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+} from 'react-router-dom';
+
+import Menu from './components/Menu';
+import GameGallery from './GameGallery';
+import ConnectPage from './Connect';
+
+const useStyles = makeStyles((theme) => ({
+  content: {
+    display: 'flex',
+    flex: '1 1 auto',
+    flexFlow: 'column',
+    height: '100%',
+  },
+  footer: {
+    display: 'flex',
+    flex: '0 1 40px',
+    flexFlow: 'column',
+    height: '100%',
+  },
+}));
 
 function Copyright() {
   return (
@@ -20,18 +43,24 @@ function Copyright() {
 }
 
 export default function App() {
+  const classes = useStyles();
+
   return (
-    <React.Fragment>
+    <Router>
       <Menu />
-      <Container maxWidth="lg">
-        <Box my={4}>
-          <Typography variant="h4" component="h1" gutterBottom>
-            Game list
-          </Typography>
-          <GameList />
-        </Box>
+      <Container className={classes.content} maxWidth="lg">
+        <Switch>
+          <Route path="/connect">
+            <ConnectPage />
+          </Route>
+          <Route path="/">
+            <GameGallery />
+          </Route>
+        </Switch>
       </Container>
-      <Copyright />
-    </React.Fragment>
+      <Box className={classes.footer}>
+        <Copyright />
+      </Box>
+    </Router>
   );
 }
