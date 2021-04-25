@@ -3,6 +3,7 @@ module github.com/mayamika/cellay
 go 1.16
 
 require (
+	github.com/genjidb/genji v0.11.0 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.0.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.3.0
 	go.uber.org/fx v1.13.1
