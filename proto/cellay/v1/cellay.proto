@@ -34,23 +34,71 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   }
 };
 
-message GamesServiceGetResponse {
+message GamesServiceGetInfoRequest {
+  int32 id = 1;
+}
+
+message GamesServiceGetInfoResponse {
   int32 id = 1;
   string name = 2;
   string description = 3;
 }
 
+message GamesServiceGetCodeRequest {
+  int32 id = 1;
+}
+
+message GamesServiceGetCodeResponse {
+  int32 id = 1;
+  bytes code = 2;
+}
+
+message GamesServiceGetAssetsRequest {
+  int32 id = 1;
+}
+
+message GameAssetsMeta {
+  int32 field_dim_x = 1;
+  int32 field_dim_y = 2;
+  int32 tile_size_x = 3;
+  int32 tile_size_y = 4;
+}
+
+message GamesServiceGetAssetsResponse {
+  int32 id = 1;
+  GameAssetsMeta assets_meta = 2;
+  bytes assets = 3;
+}
+
 message GamesServiceGetAllRequest {}
 
 message GamesServiceGetAllResponse {
-  repeated GamesServiceGetResponse games = 1;
+  repeated GamesServiceGetInfoResponse games = 1;
   int32 total = 2;
 }
 
 service GamesService {
+  rpc GetInfo(GamesServiceGetInfoRequest) returns (GamesServiceGetInfoResponse) {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      description: "Returns games info";
+    };
+    option (google.api.http).get = "/games/{id}/info";
+  }
+  rpc GetCode(GamesServiceGetCodeRequest) returns (GamesServiceGetCodeResponse) {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      description: "Returns games code";
+    };
+    option (google.api.http).get = "/games/{id}/code";
+  }
+  rpc GetAssets(GamesServiceGetAssetsRequest) returns (GamesServiceGetAssetsResponse) {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      description: "Returns games assets";
+    };
+    option (google.api.http).get = "/games/{id}/assets";
+  }
   rpc GetAll(GamesServiceGetAllRequest) returns (GamesServiceGetAllResponse) {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      description: "Return all games list";
+      description: "Returns all games list";
     };
     option (google.api.http).get = "/games";
   }
@@ -74,7 +122,4 @@ service MatchesService {
       body: "*";
     };
   };
-}
-
-service AssetsService {
 }

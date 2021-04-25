@@ -25,7 +25,7 @@
   "paths": {
     "/games": {
       "get": {
-        "description": "Return all games list",
+        "description": "Returns all games list",
         "operationId": "GamesService_GetAll",
         "responses": {
           "200": {
@@ -52,6 +52,135 @@
             }
           }
         },
+        "tags": [
+          "GamesService"
+        ]
+      }
+    },
+    "/games/{id}/assets": {
+      "get": {
+        "description": "Returns games assets",
+        "operationId": "GamesService_GetAssets",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GamesServiceGetAssetsResponse"
+            }
+          },
+          "403": {
+            "description": "Returned when the user does not have permission to access the resource.",
+            "schema": {}
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "GamesService"
+        ]
+      }
+    },
+    "/games/{id}/code": {
+      "get": {
+        "description": "Returns games code",
+        "operationId": "GamesService_GetCode",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GamesServiceGetCodeResponse"
+            }
+          },
+          "403": {
+            "description": "Returned when the user does not have permission to access the resource.",
+            "schema": {}
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "GamesService"
+        ]
+      }
+    },
+    "/games/{id}/info": {
+      "get": {
+        "description": "Returns games info",
+        "operationId": "GamesService_GetInfo",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GamesServiceGetInfoResponse"
+            }
+          },
+          "403": {
+            "description": "Returned when the user does not have permission to access the resource.",
+            "schema": {}
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
         "tags": [
           "GamesService"
         ]
@@ -133,13 +262,34 @@
         }
       }
     },
+    "v1GameAssetsMeta": {
+      "type": "object",
+      "properties": {
+        "fieldDimX": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "fieldDimY": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "tileSizeX": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "tileSizeY": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
     "v1GamesServiceGetAllResponse": {
       "type": "object",
       "properties": {
         "games": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/v1GamesServiceGetResponse"
+            "$ref": "#/definitions/v1GamesServiceGetInfoResponse"
           }
         },
         "total": {
@@ -148,7 +298,36 @@
         }
       }
     },
-    "v1GamesServiceGetResponse": {
+    "v1GamesServiceGetAssetsResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "assetsMeta": {
+          "$ref": "#/definitions/v1GameAssetsMeta"
+        },
+        "assets": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "v1GamesServiceGetCodeResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "code": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "v1GamesServiceGetInfoResponse": {
       "type": "object",
       "properties": {
         "id": {
