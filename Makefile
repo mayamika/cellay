@@ -6,21 +6,10 @@ GO		?= go
 
 # DIRS
 
-# build
-
-BIN_OUTPUT_DIR ?= bin
-
-# cache
-
-DOWNLOAD_CACHE_DIR ?= build/download
-
-# tools
-
-TOOLS_BIN_DIR ?= tools/bin
-
-# proto
-
-PROTO_DIR := proto
+BIN_OUTPUT_DIR 		?= bin
+DOWNLOAD_CACHE_DIR	?= build/download
+TOOLS_BIN_DIR		:= tools/bin
+PROTO_DIR			:= proto
 
 DEP_DIRS = $(BIN_OUTPUT_DIR) $(DOWNLOAD_CACHE_DIR) $(TOOLS_BIN_DIR)
 $(DEP_DIRS):
