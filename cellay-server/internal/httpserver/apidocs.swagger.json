@@ -354,7 +354,7 @@
     "v1MatchesServiceNewResponse": {
       "type": "object",
       "properties": {
-        "id": {
+        "token": {
           "type": "string"
         }
       }

@@ -109,7 +109,7 @@ message MatchesServiceNewRequest {
 }
 
 message MatchesServiceNewResponse {
-  string id = 1;
+  string token = 1;
 }
 
 service MatchesService {
