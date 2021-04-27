@@ -57,17 +57,22 @@ message GamesServiceGetAssetsRequest {
   int32 id = 1;
 }
 
-message GameAssetsMeta {
-  int32 field_dim_x = 1;
-  int32 field_dim_y = 2;
-  int32 tile_size_x = 3;
-  int32 tile_size_y = 4;
+message GameAssetsField {
+  int32 rows = 1;
+  int32 cols = 2;
+}
+
+message GameAssetsLayer {
+  int32 width = 1;
+  int32 height = 2;
+  int32 depth = 3;
+  bytes texture = 4;
 }
 
 message GamesServiceGetAssetsResponse {
   int32 id = 1;
-  GameAssetsMeta assets_meta = 2;
-  bytes assets = 3;
+  GameAssetsField field = 2;
+  map<string, GameAssetsLayer> layers = 3;
 }
 
 message GamesServiceGetAllRequest {}

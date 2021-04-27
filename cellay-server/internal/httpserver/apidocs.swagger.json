@@ -262,24 +262,37 @@
         }
       }
     },
-    "v1GameAssetsMeta": {
+    "v1GameAssetsField": {
       "type": "object",
       "properties": {
-        "fieldDimX": {
+        "rows": {
           "type": "integer",
           "format": "int32"
         },
-        "fieldDimY": {
+        "cols": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "v1GameAssetsLayer": {
+      "type": "object",
+      "properties": {
+        "width": {
           "type": "integer",
           "format": "int32"
         },
-        "tileSizeX": {
+        "height": {
           "type": "integer",
           "format": "int32"
         },
-        "tileSizeY": {
+        "depth": {
           "type": "integer",
           "format": "int32"
+        },
+        "texture": {
+          "type": "string",
+          "format": "byte"
         }
       }
     },
@@ -305,12 +318,14 @@
           "type": "integer",
           "format": "int32"
         },
-        "assetsMeta": {
-          "$ref": "#/definitions/v1GameAssetsMeta"
+        "field": {
+          "$ref": "#/definitions/v1GameAssetsField"
         },
-        "assets": {
-          "type": "string",
-          "format": "byte"
+        "layers": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/v1GameAssetsLayer"
+          }
         }
       }
     },
