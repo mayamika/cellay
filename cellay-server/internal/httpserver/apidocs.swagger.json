@@ -337,8 +337,7 @@
           "format": "int32"
         },
         "code": {
-          "type": "string",
-          "format": "byte"
+          "type": "string"
         }
       }
     },

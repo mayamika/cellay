@@ -6,6 +6,7 @@ import (
 
 	"github.com/mayamika/cellay/cellay-server/internal/cellay/games"
 	"github.com/mayamika/cellay/cellay-server/internal/cellay/matches"
+	"github.com/mayamika/cellay/cellay-server/internal/gamesstorage"
 	"github.com/mayamika/cellay/cellay-server/internal/grpcserver"
 	"github.com/mayamika/cellay/cellay-server/internal/httpserver"
 	"github.com/mayamika/cellay/cellay-server/internal/logger"
@@ -14,8 +15,9 @@ import (
 type Config struct {
 	fx.Out
 
-	GRPC grpcserver.Config
-	HTTP httpserver.Config
+	GRPC    grpcserver.Config
+	HTTP    httpserver.Config
+	Storage gamesstorage.Config
 }
 
 func NewDefaultConfig() *Config {
@@ -25,6 +27,9 @@ func NewDefaultConfig() *Config {
 		},
 		HTTP: httpserver.Config{
 			Addr: ":8080",
+		},
+		Storage: gamesstorage.Config{
+			Path: "gamesstorage.db",
 		},
 	}
 }
@@ -40,6 +45,7 @@ func New(config *Config) *fx.App {
 		fx.Provide(httpserver.New),
 		fx.Provide(games.NewService),
 		fx.Provide(matches.NewService),
+		fx.Provide(gamesstorage.New),
 		fx.Invoke(onStart),
 	)
 }
@@ -49,5 +55,6 @@ func onStart(
 	_ *httpserver.Server,
 	_ *games.Service,
 	_ *matches.Service,
+	_ *gamesstorage.Storage,
 ) {
 }
