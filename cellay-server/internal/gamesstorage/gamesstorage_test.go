@@ -30,8 +30,16 @@ func testInsertGet(t *testing.T, s *Storage) {
 	games, err := s.AllGames(ctx)
 	r.NoError(err)
 	r.Len(games, 2)
-	r.Equal(firstGame, games[0])
-	r.Equal(secondGame, games[1])
+	r.Equal(&GameInfo{
+		ID:          firstGame.ID,
+		Name:        firstGame.Name,
+		Description: firstGame.Description,
+	}, games[0])
+	r.Equal(&GameInfo{
+		ID:          secondGame.ID,
+		Name:        secondGame.Name,
+		Description: secondGame.Description,
+	}, games[1])
 
 	info, err := s.GameInfo(ctx, 1)
 	r.NoError(err)

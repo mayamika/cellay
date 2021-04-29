@@ -125,19 +125,19 @@ func (s *Storage) GameAssets(ctx context.Context, id int32) (*GameAssets, error)
 	return assets, nil
 }
 
-func (s *Storage) AllGames(ctx context.Context) ([]*Game, error) {
+func (s *Storage) AllGames(ctx context.Context) ([]*GameInfo, error) {
 	db := s.db.WithContext(ctx)
-	res, err := db.Query(`SELECT pk(), * FROM games`)
+	res, err := db.Query(`SELECT pk(), name, description FROM games`)
 	if err != nil {
 		return nil, fmt.Errorf("can't get query result: %w", err)
 	}
-	var games []*Game
+	var gameInfos []*GameInfo
 	err = res.Iterate(func(d document.Document) error {
-		game := &Game{}
-		if err := scanStructAndID(d, game, &game.ID); err != nil {
+		info := &GameInfo{}
+		if err := scanStructAndID(d, info, &info.ID); err != nil {
 			return err
 		}
-		games = append(games, game)
+		gameInfos = append(gameInfos, info)
 		return nil
 	})
 	if err != nil {
@@ -146,7 +146,7 @@ func (s *Storage) AllGames(ctx context.Context) ([]*Game, error) {
 	if err := res.Close(); err != nil {
 		return nil, fmt.Errorf("can't close query result: %w", err)
 	}
-	return games, nil
+	return gameInfos, nil
 }
 
 func (s *Storage) AddGame(ctx context.Context, game *Game) error {
