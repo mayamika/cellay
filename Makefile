@@ -4,7 +4,7 @@ SHELL	?= /bin/bash
 CURL	?= curl --silent
 GO		?= go
 
-# DIRS
+# Directories
 
 BIN_OUTPUT_DIR 		?= bin
 DOWNLOAD_CACHE_DIR	?= build/download
@@ -15,7 +15,7 @@ DEP_DIRS = $(BIN_OUTPUT_DIR) $(DOWNLOAD_CACHE_DIR) $(TOOLS_BIN_DIR)
 $(DEP_DIRS):
 	-mkdir -p $(DEP_DIRS)
 
-# TOOLS
+# Tools
 
 TOOLS_MODFILE := tools/go.mod
 define install-go-tool =
@@ -37,7 +37,7 @@ $(PROTOC_DIST_ARCHIVE): | $(DOWNLOAD_CACHE_DIR)
 $(PROTOC_DIST): | $(PROTOC_DIST_ARCHIVE)
 	unzip -d "$@" -o $|
 
-# proto tools
+## Proto tools
 
 PROTOC_TOOL = $(TOOLS_BIN_DIR)/protoc-$(PROTOC_VERSION)
 PROTO_TOOLS = $(PROTOC_TOOL)
@@ -64,7 +64,7 @@ PROTO_TOOLS += $(TOOLS_BIN_DIR)/protoc-gen-buf-lint
 $(TOOLS_BIN_DIR)/protoc-gen-buf-lint: | $(TOOLS_BIN_DIR)
 	$(install-go-tool) github.com/bufbuild/buf/cmd/protoc-gen-buf-lint
 
-# PROTO
+# Proto
 
 PROTO_PROTOBUF_FLAGS = \
 		-I$(PROTO_DIR) \
@@ -121,7 +121,7 @@ $(PROTO_CELLAY_SERVER_GENERATED): PROTO_OPENAPI_DIR = $(PROTO_CELLAY_SERVER_OPEN
 $(PROTO_CELLAY_SERVER_GENERATED): PROTO_FILES = $(PROTO_CELLAY_SERVER_FILES)
 $(PROTO_CELLAY_SERVER_GENERATED): .proto_cellay_server_generated ;
 
-# generate
+## Generate
 
 .PHONY: generate-proto-cellay-server
 generate-proto-cellay-server: $(PROTO_CELLAY_SERVER_GENERATED)
@@ -129,7 +129,7 @@ generate-proto-cellay-server: $(PROTO_CELLAY_SERVER_GENERATED)
 .PHONY: generate-proto
 generate-proto: generate-proto-cellay-server
 
-# clean
+## Cleanup
 
 .PHONY: clean-proto-cellay-server
 clean-proto-cellay-server:
@@ -137,3 +137,8 @@ clean-proto-cellay-server:
 
 .PHONY: clean-proto
 clean-proto: clean-proto-cellay-server
+
+# Cleanup
+
+.PHONY: clean
+clean: clean-proto
