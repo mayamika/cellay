@@ -38,7 +38,6 @@ func testInsertGet(t *testing.T, s *Storage) {
 		Name:        secondGame.Name,
 		Description: secondGame.Description,
 	}, games[1])
-
 	info, err := s.GameInfo(ctx, 1)
 	r.NoError(err)
 	r.Equal(&GameInfo{
@@ -46,14 +45,12 @@ func testInsertGet(t *testing.T, s *Storage) {
 		Name:        firstGame.Name,
 		Description: firstGame.Description,
 	}, info)
-
 	code, err := s.GameCode(ctx, 1)
 	r.NoError(err)
 	r.Equal(&GameCode{
 		ID:   1,
 		Code: firstGame.Code,
 	}, code)
-
 	assets, err := s.GameAssets(ctx, 1)
 	r.NoError(err)
 	r.Equal(&GameAssets{
