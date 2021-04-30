@@ -114,7 +114,16 @@ message MatchesServiceNewRequest {
 }
 
 message MatchesServiceNewResponse {
-  string token = 1;
+  string id = 1;
+}
+
+message MatchesServiceLoginRequest {
+  string id = 1;
+}
+
+message MatchesServiceLoginResponse {
+  string game_id = 1;
+  string credentials = 2;
 }
 
 service MatchesService {
@@ -126,5 +135,11 @@ service MatchesService {
       post: "/matches";
       body: "*";
     };
+  };
+  rpc Login(MatchesServiceLoginRequest) returns (MatchesServiceLoginResponse) {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      description: "Get match Centrifuge credentials";
+    };
+    option (google.api.http).get = "/matches/{id}";
   };
 }
