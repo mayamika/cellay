@@ -15,6 +15,21 @@ DEP_DIRS = $(BIN_OUTPUT_DIR) $(DOWNLOAD_CACHE_DIR) $(TOOLS_BIN_DIR)
 $(DEP_DIRS):
 	-mkdir -p $(DEP_DIRS)
 
+# Build
+
+GO_BUILD_TARGET_CELLAY_SERVER := $(BIN_OUTPUT_DIR)/cellay-server
+GO_BUILD_TARGETS = $(GO_BUILD_TARGET_CELLAY_SERVER)
+
+.PHONY: $(GO_BUILD_TARGETS)
+$(GO_BUILD_TARGETS): | $(BIN_OUTPUT_DIR)
+	$(GO) build -o $(BIN_OUTPUT_DIR) ./cmd/...
+
+# Run
+
+.PHONY: run-server
+run-server: $(GO_BUILD_TARGET_CELLAY_SERVER)
+	$(BIN_OUTPUT_DIR)/cellay-server
+
 # Tools
 
 TOOLS_MODFILE := tools/go.mod

@@ -1,6 +1,9 @@
-# editors
+# Editors
 /.vscode
 
-# dirs
+# Directories
 /build
 /bin
+
+# Applications junk
+/gamesstorage.db
