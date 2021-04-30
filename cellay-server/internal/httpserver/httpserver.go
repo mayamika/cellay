@@ -36,7 +36,7 @@ type Params struct {
 	GRPCConfig grpcserver.Config
 }
 
-func New(p Params) *Server {
+func New(p Params) *Server { //nolint: gocritic
 	var (
 		logger = p.Logger.Named("http")
 		server = &Server{
@@ -66,7 +66,7 @@ func New(p Params) *Server {
 			}
 			server.mux.Handle(`/api/v1/`, http.StripPrefix(`/api/v1`, gwMux))
 			go func() {
-				defer p.Shutdowner.Shutdown()
+				defer func() { _ = p.Shutdowner.Shutdown() }()
 				if err := httpServer.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
 					logger.Error("serve http failed", zap.Error(err))
 				}
@@ -75,7 +75,10 @@ func New(p Params) *Server {
 		},
 		OnStop: func(ctx context.Context) error {
 			defer func() { _ = server.grpcClient.Close() }()
-			return httpServer.Shutdown(ctx)
+			if err := httpServer.Shutdown(ctx); err != nil {
+				return fmt.Errorf("http server shutdown failed: %w", err)
+			}
+			return nil
 		},
 	})
 	return server

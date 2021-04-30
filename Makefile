@@ -25,6 +25,9 @@ define install-go-tool =
 		-modfile $(TOOLS_MODFILE)
 endef
 
+clean-tools:
+	-rm -rf $(TOOLS_BIN_DIR)
+
 PROTOC_VERSION := 3.14.0
 PROTOC_DIST_LINK := https://github.com/protocolbuffers/protobuf/releases/download/v$(PROTOC_VERSION)/protoc-$(PROTOC_VERSION)-linux-x86_64.zip
 
@@ -36,6 +39,12 @@ $(PROTOC_DIST_ARCHIVE): | $(DOWNLOAD_CACHE_DIR)
 
 $(PROTOC_DIST): | $(PROTOC_DIST_ARCHIVE)
 	unzip -d "$@" -o $|
+
+## CI tools
+
+GO_LINT_TOOL = $(TOOLS_BIN_DIR)/golangci-lint
+$(GO_LINT_TOOL): | $(TOOLS_BIN_DIR)
+	$(install-go-tool) github.com/golangci/golangci-lint/cmd/golangci-lint
 
 ## Proto tools
 
@@ -138,7 +147,13 @@ clean-proto-cellay-server:
 .PHONY: clean-proto
 clean-proto: clean-proto-cellay-server
 
+# Lint
+
+.PHONY: lint
+lint: $(GO_LINT_TOOL)
+	$(GO_LINT_TOOL) run --sort-results
+
 # Cleanup
 
 .PHONY: clean
-clean: clean-proto
+clean: clean-proto clean-tools

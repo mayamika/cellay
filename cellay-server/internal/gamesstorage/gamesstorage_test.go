@@ -23,20 +23,18 @@ func testInsertGet(t *testing.T, s *Storage) {
 	)
 	firstGame := newTestGame(1)
 	r.NoError(s.AddGame(ctx, firstGame))
-	firstGame.ID = 1
 	secondGame := newTestGame(2)
 	r.NoError(s.AddGame(ctx, secondGame))
-	secondGame.ID = 2
 	games, err := s.AllGames(ctx)
 	r.NoError(err)
 	r.Len(games, 2)
 	r.Equal(&GameInfo{
-		ID:          firstGame.ID,
+		ID:          1,
 		Name:        firstGame.Name,
 		Description: firstGame.Description,
 	}, games[0])
 	r.Equal(&GameInfo{
-		ID:          secondGame.ID,
+		ID:          2,
 		Name:        secondGame.Name,
 		Description: secondGame.Description,
 	}, games[1])
@@ -44,7 +42,7 @@ func testInsertGet(t *testing.T, s *Storage) {
 	info, err := s.GameInfo(ctx, 1)
 	r.NoError(err)
 	r.Equal(&GameInfo{
-		ID:          firstGame.ID,
+		ID:          1,
 		Name:        firstGame.Name,
 		Description: firstGame.Description,
 	}, info)
@@ -52,14 +50,14 @@ func testInsertGet(t *testing.T, s *Storage) {
 	code, err := s.GameCode(ctx, 1)
 	r.NoError(err)
 	r.Equal(&GameCode{
-		ID:   firstGame.ID,
+		ID:   1,
 		Code: firstGame.Code,
 	}, code)
 
 	assets, err := s.GameAssets(ctx, 1)
 	r.NoError(err)
 	r.Equal(&GameAssets{
-		ID:     firstGame.ID,
+		ID:     1,
 		Field:  firstGame.Field,
 		Layers: firstGame.Layers,
 	}, assets)

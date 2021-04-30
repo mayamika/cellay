@@ -50,7 +50,7 @@ func New(p Params) *grpc.Server {
 				return fmt.Errorf("can't listen tcp: %w", err)
 			}
 			go func() {
-				defer p.Shutdowner.Shutdown()
+				defer func() { _ = p.Shutdowner.Shutdown() }()
 				if err := server.Serve(listener); err != nil {
 					logger.Error("serve grpc failed", zap.Error(err))
 				}

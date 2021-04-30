@@ -42,7 +42,10 @@ func New(p Params) *Storage {
 			return nil
 		},
 		OnStop: func(_ context.Context) error {
-			return s.db.Close()
+			if err := s.db.Close(); err != nil {
+				return fmt.Errorf("can't close genjidb: %w", err)
+			}
+			return nil
 		},
 	})
 	return s
@@ -78,7 +81,6 @@ type GameAssets struct {
 }
 
 type Game struct {
-	ID          int32
 	Name        string
 	Description string
 	Code        string
