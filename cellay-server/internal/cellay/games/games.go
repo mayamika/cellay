@@ -2,6 +2,7 @@ package games
 
 import (
 	"context"
+	"fmt"
 
 	"go.uber.org/fx"
 	"google.golang.org/grpc"
@@ -15,7 +16,6 @@ import (
 
 type Service struct {
 	cellayv1.UnimplementedGamesServiceServer
-
 	storage *gamesstorage.Storage
 }
 
@@ -42,7 +42,7 @@ func (s *Service) GetInfo(
 ) (*cellayv1.GamesServiceGetInfoResponse, error) {
 	info, err := s.storage.GameInfo(ctx, req.GetId())
 	if err != nil {
-		return nil, errInternal(err)
+		return nil, errInternalf("can't get game info from storage: %w", err)
 	}
 	return gameInfoToProto(info), nil
 }
@@ -53,7 +53,7 @@ func (s *Service) GetCode(
 ) (*cellayv1.GamesServiceGetCodeResponse, error) {
 	code, err := s.storage.GameCode(ctx, req.GetId())
 	if err != nil {
-		return nil, errInternal(err)
+		return nil, errInternalf("can't get game code from storage: %w", err)
 	}
 	return &cellayv1.GamesServiceGetCodeResponse{
 		Id:   code.ID,
@@ -67,7 +67,7 @@ func (s *Service) GetAssets(
 ) (*cellayv1.GamesServiceGetAssetsResponse, error) {
 	assets, err := s.storage.GameAssets(ctx, req.GetId())
 	if err != nil {
-		return nil, errInternal(err)
+		return nil, errInternalf("can't get game assets from storage: %w", err)
 	}
 	return gameAssetsToProto(assets), nil
 }
@@ -78,7 +78,7 @@ func (s *Service) GetAll(
 ) (*cellayv1.GamesServiceGetAllResponse, error) {
 	games, err := s.storage.AllGames(ctx)
 	if err != nil {
-		return nil, errInternal(err)
+		return nil, errInternalf("can't get games from storage: %w", err)
 	}
 	var gamesProto []*cellayv1.GamesServiceGetInfoResponse
 	for _, info := range games {
@@ -92,6 +92,10 @@ func (s *Service) GetAll(
 
 func errInternal(err error) error {
 	return status.Error(codes.Internal, err.Error())
+}
+
+func errInternalf(format string, args ...interface{}) error {
+	return errInternal(fmt.Errorf(format, args...))
 }
 
 func gameInfoToProto(info *gamesstorage.GameInfo) *cellayv1.GamesServiceGetInfoResponse {

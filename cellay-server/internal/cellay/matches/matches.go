@@ -1,8 +1,13 @@
 package matches
 
 import (
+	"context"
+	"fmt"
+
 	"go.uber.org/fx"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"github.com/mayamika/cellay/cellay-server/internal/httpserver"
 	cellayv1 "github.com/mayamika/cellay/proto/cellay/v1"
@@ -24,4 +29,26 @@ func NewService(p Params) *Service {
 	cellayv1.RegisterMatchesServiceServer(p.GRPCServer, s)
 	p.HTTPServer.RegisterService(cellayv1.RegisterMatchesServiceHandler)
 	return s
+}
+
+func (s *Service) New(
+	ctx context.Context,
+	req *cellayv1.MatchesServiceNewRequest,
+) (*cellayv1.MatchesServiceNewResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method New not implemented")
+}
+
+func (s *Service) Login(
+	ctx context.Context,
+	req *cellayv1.MatchesServiceLoginRequest,
+) (*cellayv1.MatchesServiceLoginResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
+}
+
+func errInternal(err error) error {
+	return status.Error(codes.Internal, err.Error())
+}
+
+func errInternalf(format string, args ...interface{}) error {
+	return errInternal(fmt.Errorf(format, args...))
 }
