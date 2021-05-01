@@ -55,6 +55,48 @@
         "tags": [
           "GamesService"
         ]
+      },
+      "post": {
+        "description": "Add game",
+        "operationId": "GamesService_Add",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GamesServiceAddResponse"
+            }
+          },
+          "403": {
+            "description": "Returned when the user does not have permission to access the resource.",
+            "schema": {}
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GamesServiceAddRequest"
+            }
+          }
+        ],
+        "tags": [
+          "GamesService"
+        ]
       }
     },
     "/games/{id}/assets": {
@@ -229,6 +271,48 @@
           "MatchesService"
         ]
       }
+    },
+    "/matches/{id}": {
+      "get": {
+        "description": "Get match Centrifuge credentials",
+        "operationId": "MatchesService_Login",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1MatchesServiceLoginResponse"
+            }
+          },
+          "403": {
+            "description": "Returned when the user does not have permission to access the resource.",
+            "schema": {}
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "MatchesService"
+        ]
+      }
     }
   },
   "definitions": {
@@ -296,6 +380,32 @@
         }
       }
     },
+    "v1GamesServiceAddRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "code": {
+          "type": "string"
+        },
+        "field": {
+          "$ref": "#/definitions/v1GameAssetsField"
+        },
+        "layers": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/v1GameAssetsLayer"
+          }
+        }
+      }
+    },
+    "v1GamesServiceAddResponse": {
+      "type": "object"
+    },
     "v1GamesServiceGetAllResponse": {
       "type": "object",
       "properties": {
@@ -356,6 +466,17 @@
         }
       }
     },
+    "v1MatchesServiceLoginResponse": {
+      "type": "object",
+      "properties": {
+        "gameId": {
+          "type": "string"
+        },
+        "credentials": {
+          "type": "string"
+        }
+      }
+    },
     "v1MatchesServiceNewRequest": {
       "type": "object",
       "properties": {
@@ -368,7 +489,7 @@
     "v1MatchesServiceNewResponse": {
       "type": "object",
       "properties": {
-        "token": {
+        "id": {
           "type": "string"
         }
       }

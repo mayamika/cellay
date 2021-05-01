@@ -82,6 +82,16 @@ message GamesServiceGetAllResponse {
   int32 total = 2;
 }
 
+message GamesServiceAddRequest {
+  string name = 1;
+  string description = 2;
+  string code = 3;
+  GameAssetsField field = 4;
+  map<string, GameAssetsLayer> layers = 5;
+}
+
+message GamesServiceAddResponse {}
+
 service GamesService {
   rpc GetInfo(GamesServiceGetInfoRequest) returns (GamesServiceGetInfoResponse) {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -106,6 +116,15 @@ service GamesService {
       description: "Returns all games list";
     };
     option (google.api.http).get = "/games";
+  }
+  rpc Add(GamesServiceAddRequest) returns (GamesServiceAddResponse) {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      description: "Add game";
+    };
+    option (google.api.http) = {
+      post: "/games";
+      body: "*";
+    };
   }
 }
 
