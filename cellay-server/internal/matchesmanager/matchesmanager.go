@@ -63,11 +63,6 @@ func (m *Manager) StartMatch(ctx context.Context, gameID int32) (string, error) 
 	if err != nil {
 		return "", fmt.Errorf("can't fetch game code: %w", err)
 	}
-	gameAssets, err := m.storage.GameAssets(ctx, gameID)
-	if err != nil {
-		return "", fmt.Errorf("can't fetch game assets: %w", err)
-	}
-
 	return "", nil
 }
 
