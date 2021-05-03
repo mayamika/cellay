@@ -17,7 +17,7 @@ type Manager struct {
 	storage *gamesstorage.Storage
 
 	mu          sync.Mutex
-	matchTokens map[string]struct{}
+	matchTokens map[string]struct{} //nolint:unused // Not implemented
 }
 
 type Config struct {
@@ -66,6 +66,7 @@ func (m *Manager) StartMatch(ctx context.Context, gameID int32) (string, error) 
 	return "", nil
 }
 
+//nolint:unused // Not implemented
 func (m *Manager) newMatchToken(ctx context.Context) (string, error) {
 	for {
 		if err := ctx.Err(); err != nil {

@@ -79,7 +79,7 @@ linters:
     - gofmt
     - goimports
     - golint
-    - gomnd
+    # - gomnd for a better day
     - goprintffuncname
     - gosec
     - gosimple

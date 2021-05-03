@@ -94,6 +94,7 @@ func errInternal(err error) error {
 	return status.Error(codes.Internal, err.Error())
 }
 
+//nolint:goerr113 // Helper function
 func errInternalf(format string, args ...interface{}) error {
 	return errInternal(fmt.Errorf(format, args...))
 }

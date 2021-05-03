@@ -2,7 +2,6 @@ package matches
 
 import (
 	"context"
-	"fmt"
 
 	"go.uber.org/fx"
 	"google.golang.org/grpc"
@@ -43,12 +42,4 @@ func (s *Service) Login(
 	req *cellayv1.MatchesServiceLoginRequest,
 ) (*cellayv1.MatchesServiceLoginResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
-}
-
-func errInternal(err error) error {
-	return status.Error(codes.Internal, err.Error())
-}
-
-func errInternalf(format string, args ...interface{}) error {
-	return errInternal(fmt.Errorf(format, args...))
 }

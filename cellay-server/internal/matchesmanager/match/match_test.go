@@ -49,11 +49,9 @@ func testTicTacToe(t *testing.T) {
 		Layers: []string{"main"},
 	})
 	r.NoError(err)
-	/*
-		___
-		___
-		___
-	*/
+	// ___
+	// ___
+	// ___
 	state, err := match.Start()
 	r.NoError(err)
 	r.Equal(&State{
@@ -65,49 +63,35 @@ func testTicTacToe(t *testing.T) {
 			},
 		},
 	}, state)
-	/*
-		___
-		_x_
-		___
-	*/
+	// ___
+	// _x_
+	// ___
 	testCorrectTicTacToeMove(t, match, state, 1, 1, 1)
 	testOutOfBoundsTicTacToeMove(t, match, 2, 5, 4)
 	testAnotherPlayersTurnTicTacToeMove(t, match, state, 1, 2, 0)
-	/*
-		__0
-		_x_
-		___
-	*/
+	// __0
+	// _x_
+	// ___
 	testCorrectTicTacToeMove(t, match, state, 2, 2, 0)
-	/*
-		__0
-		_x_
-		__x
-	*/
+	// __0
+	// _x_
+	// __x
 	testCorrectTicTacToeMove(t, match, state, 1, 2, 2)
-	/*
-		0_0
-		_x_
-		__x
-	*/
+	// 0_0
+	// _x_
+	// __x
 	testCorrectTicTacToeMove(t, match, state, 2, 0, 0)
-	/*
-		0x0
-		_x_
-		__x
-	*/
+	// 0x0
+	// _x_
+	// __x
 	testCorrectTicTacToeMove(t, match, state, 1, 1, 0)
-	/*
-		0x0
-		0x_
-		__x
-	*/
+	// 0x0
+	// 0x_
+	// __x
 	testCorrectTicTacToeMove(t, match, state, 2, 0, 1)
-	/*
-		0x0
-		0x_
-		_xx
-	*/
+	// 0x0
+	// 0x_
+	// _xx
 	testCorrectTicTacToeMove(t, match, state, 1, 1, 2)
 }
 
