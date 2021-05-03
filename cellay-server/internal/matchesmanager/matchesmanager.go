@@ -59,7 +59,7 @@ func New(p Params) (*Manager, error) {
 func (m *Manager) StartMatch(ctx context.Context, gameID int32) (string, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	gameCode, err := m.storage.GameCode(ctx, gameID)
+	_, err := m.storage.GameCode(ctx, gameID)
 	if err != nil {
 		return "", fmt.Errorf("can't fetch game code: %w", err)
 	}
