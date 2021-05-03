@@ -19,7 +19,7 @@ func testTicTacToe(t *testing.T) {
 	end
 
 	function init_game(state)
-		-- game have no initial state
+		-- game has no initial state
 	end
 
 	function handle_move(state, move)
