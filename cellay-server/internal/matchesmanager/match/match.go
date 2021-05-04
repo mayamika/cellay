@@ -22,13 +22,13 @@ type Match struct {
 	state         *State
 }
 
-type GameField struct {
+type Field struct {
 	Cols, Rows int
 }
 
 type Config struct {
 	Code   string
-	Field  GameField
+	Field  Field
 	Layers []string
 }
 

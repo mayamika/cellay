@@ -42,7 +42,7 @@ func testTicTacToe(t *testing.T) {
 	r := require.New(t)
 	match, err := New(&Config{
 		Code: code,
-		Field: GameField{
+		Field: Field{
 			Cols: 3,
 			Rows: 3,
 		},
