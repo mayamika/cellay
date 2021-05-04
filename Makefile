@@ -15,32 +15,9 @@ DEP_DIRS = $(BIN_OUTPUT_DIR) $(DOWNLOAD_CACHE_DIR) $(TOOLS_BIN_DIR)
 $(DEP_DIRS):
 	-mkdir -p $(DEP_DIRS)
 
-# Build
-
-GO_BUILD_TARGET_CELLAY_SERVER := $(BIN_OUTPUT_DIR)/cellay-server
-GO_BUILD_TARGETS = $(GO_BUILD_TARGET_CELLAY_SERVER)
-
-.PHONY: $(GO_BUILD_TARGETS)
-$(GO_BUILD_TARGETS): | $(BIN_OUTPUT_DIR)
-	$(GO) build -o $(BIN_OUTPUT_DIR) ./cmd/...
-
-# Test
-
-.PHONY: test
-test:
-	$(GO) test -v -race ./...
-
-.PHONY: test-norace
-test-norace:
-	$(GO) test -v ./...
-
-# Run
-
-.PHONY: run-server
-run-server: $(GO_BUILD_TARGET_CELLAY_SERVER)
-	$(BIN_OUTPUT_DIR)/cellay-server
-
 # Tools
+
+export TOOLS_PATH = $(CURDIR)/$(TOOLS_BIN_DIR)
 
 TOOLS_MODFILE := tools/go.mod
 define install-go-tool =
@@ -64,6 +41,12 @@ $(PROTOC_DIST_ARCHIVE): | $(DOWNLOAD_CACHE_DIR)
 
 $(PROTOC_DIST): | $(PROTOC_DIST_ARCHIVE)
 	unzip -d "$@" -o $|
+
+## Codegen tools
+
+CODEGEN_TOOLS := $(TOOLS_BIN_DIR)/enumer
+$(TOOLS_BIN_DIR)/enumer: | $(TOOLS_BIN_DIR)
+	$(install-go-tool) github.com/alvaroloes/enumer
 
 ## CI tools
 
@@ -177,6 +160,37 @@ clean-proto: clean-proto-cellay-server
 .PHONY: lint
 lint: $(GO_LINT_TOOL)
 	$(GO_LINT_TOOL) run --sort-results
+
+# Generate
+
+.PHONY: generate-go
+generate-go: $(CODEGEN_TOOLS)
+	$(GO) generate ./...
+
+# Build
+
+GO_BUILD_TARGET_CELLAY_SERVER := $(BIN_OUTPUT_DIR)/cellay-server
+GO_BUILD_TARGETS = $(GO_BUILD_TARGET_CELLAY_SERVER)
+
+.PHONY: $(GO_BUILD_TARGETS)
+$(GO_BUILD_TARGETS): | $(BIN_OUTPUT_DIR)
+	$(GO) build -o $(BIN_OUTPUT_DIR) ./cmd/...
+
+# Test
+
+.PHONY: test
+test:
+	$(GO) test -v -race ./...
+
+.PHONY: test-norace
+test-norace:
+	$(GO) test -v ./...
+
+# Run
+
+.PHONY: run-server
+run-server: $(GO_BUILD_TARGET_CELLAY_SERVER)
+	$(BIN_OUTPUT_DIR)/cellay-server
 
 # Cleanup
 

@@ -3,6 +3,7 @@ module github.com/mayamika/cellay
 go 1.16
 
 require (
+	github.com/alvaroloes/enumer v1.1.2
 	github.com/bufbuild/buf v0.41.0
 	github.com/golangci/golangci-lint v1.39.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.3.0

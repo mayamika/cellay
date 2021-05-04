@@ -1,17 +1,16 @@
 package match
 
 import (
-	"fmt"
-
 	lua "github.com/yuin/gopher-lua"
 )
 
 type State struct {
 	Table map[string][][]int // maps layer name to [col][row]
+	Event *Event             `json:",omitempty"`
 }
 
 const (
-	luaStateTypename = "state"
+	luaStateTypename = "State"
 )
 
 func newState(cols, rows int, layers []string) *State {
@@ -30,6 +29,10 @@ func newState(cols, rows int, layers []string) *State {
 func stateCopy(s *State) *State {
 	sCopy := &State{
 		Table: make(map[string][][]int),
+	}
+	if ev := s.Event; ev != nil {
+		sCopy.Event = &Event{}
+		*sCopy.Event = *ev
 	}
 	for layer, layerTable := range s.Table {
 		sCopy.Table[layer] = make([][]int, len(layerTable))
@@ -63,7 +66,7 @@ func checkLuaState(lState *lua.LState, n int) *State {
 	if val, ok := ud.Value.(*State); ok {
 		return val
 	}
-	lState.ArgError(1, "state expected")
+	lState.ArgError(n, "state expected")
 	return nil
 }
 
@@ -110,10 +113,4 @@ func luaStateFieldTile(lState *lua.LState) int {
 	}
 	lState.Push(lua.LNumber(layerTable[x][y]))
 	return 1
-}
-
-func checkArgsCount(lState *lua.LState, argsRequired int) {
-	if lState.GetTop() != argsRequired {
-		lState.ArgError(argsRequired, fmt.Sprintf("%d args expected", argsRequired))
-	}
 }

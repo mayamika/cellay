@@ -8,7 +8,7 @@ type Click struct {
 }
 
 const (
-	luaClickTypename = "click"
+	luaClickTypename = "Click"
 )
 
 func newClickUserData(lState *lua.LState, click *Click) *lua.LUserData {

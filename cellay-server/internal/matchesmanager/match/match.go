@@ -116,11 +116,11 @@ func (m *Match) parseCode(code string) error {
 	if err != nil {
 		return err
 	}
-	m.handleMoveFn, err = loadLuaFunction(m.lState, handleMoveFnName, 0)
+	m.handleMoveFn, err = loadLuaFunction(m.lState, handleMoveFnName, 1)
 	if err != nil {
 		return err
 	}
-	m.handleClickFn, err = loadLuaFunction(m.lState, handleClickFnName, 0)
+	m.handleClickFn, err = loadLuaFunction(m.lState, handleClickFnName, 1)
 	if err != nil {
 		return err
 	}
@@ -129,6 +129,7 @@ func (m *Match) parseCode(code string) error {
 
 func registerTypes(lState *lua.LState) {
 	registerClickType(lState)
+	registerEventType(lState)
 	registerStateType(lState)
 }
 
@@ -140,11 +141,16 @@ func (m *Match) callStart() error {
 }
 
 func (m *Match) callHandleClick(click *Click) error {
-	return m.lState.CallByParam(
+	if err := m.lState.CallByParam(
 		m.handleClickFn,
 		newStateUserData(m.lState, m.state),
 		newClickUserData(m.lState, click),
-	)
+	); err != nil {
+		return err
+	}
+	m.state.Event = eventFromLua(m.lState, 1)
+	m.lState.Pop(1)
+	return nil
 }
 
 func loadLuaFunction(lState *lua.LState, name string, nRet int) (lua.P, error) {
@@ -157,6 +163,12 @@ func loadLuaFunction(lState *lua.LState, name string, nRet int) (lua.P, error) {
 		NRet:    nRet,
 		Protect: true,
 	}, nil
+}
+
+func checkArgsCount(lState *lua.LState, argsRequired int) {
+	if lState.GetTop() != argsRequired {
+		lState.ArgError(argsRequired, fmt.Sprintf("%d args expected", argsRequired))
+	}
 }
 
 func wrapErr(err, reason error) error {
