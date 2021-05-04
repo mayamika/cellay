@@ -24,6 +24,16 @@ GO_BUILD_TARGETS = $(GO_BUILD_TARGET_CELLAY_SERVER)
 $(GO_BUILD_TARGETS): | $(BIN_OUTPUT_DIR)
 	$(GO) build -o $(BIN_OUTPUT_DIR) ./cmd/...
 
+# Test
+
+.PHONY: test
+test:
+	$(GO) test -v -race ./...
+
+.PHONY: test-norace
+test-norace:
+	$(GO) test -v ./...
+
 # Run
 
 .PHONY: run-server
