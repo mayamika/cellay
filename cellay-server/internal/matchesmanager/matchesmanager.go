@@ -6,10 +6,11 @@ import (
 	"sync"
 
 	"github.com/centrifugal/centrifuge"
-	"github.com/mayamika/cellay/cellay-server/internal/gamesstorage"
-	"github.com/mayamika/cellay/cellay-server/internal/token"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
+
+	"github.com/mayamika/cellay/cellay-server/internal/gamesstorage"
+	"github.com/mayamika/cellay/cellay-server/internal/token"
 )
 
 type Manager struct {
