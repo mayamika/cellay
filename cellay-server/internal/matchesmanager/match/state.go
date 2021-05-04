@@ -58,8 +58,8 @@ func registerStateType(lState *lua.LState) {
 	lState.SetField(mt, "__index", lState.SetFuncs(lState.NewTable(), methods))
 }
 
-func checkLuaState(lState *lua.LState) *State {
-	ud := lState.CheckUserData(1)
+func checkLuaState(lState *lua.LState, n int) *State {
+	ud := lState.CheckUserData(n)
 	if val, ok := ud.Value.(*State); ok {
 		return val
 	}
@@ -68,9 +68,9 @@ func checkLuaState(lState *lua.LState) *State {
 }
 
 func luaStateSetFieldTile(lState *lua.LState) int {
-	checkMethodArgsCount(lState, 4)
+	checkArgsCount(lState, 5)
 	var (
-		state = checkLuaState(lState)
+		state = checkLuaState(lState, 1)
 		x     = lState.CheckInt(2)
 		y     = lState.CheckInt(3)
 		layer = lState.CheckString(4)
@@ -91,9 +91,9 @@ func luaStateSetFieldTile(lState *lua.LState) int {
 }
 
 func luaStateFieldTile(lState *lua.LState) int {
-	checkMethodArgsCount(lState, 3)
+	checkArgsCount(lState, 4)
 	var (
-		state = checkLuaState(lState)
+		state = checkLuaState(lState, 1)
 		x     = lState.CheckInt(2)
 		y     = lState.CheckInt(3)
 		layer = lState.CheckString(4)
@@ -112,8 +112,8 @@ func luaStateFieldTile(lState *lua.LState) int {
 	return 1
 }
 
-func checkMethodArgsCount(lState *lua.LState, argsRequired int) {
-	if lState.GetTop() != argsRequired+1 {
-		lState.ArgError(argsRequired+1, fmt.Sprintf("%d args expected", argsRequired))
+func checkArgsCount(lState *lua.LState, argsRequired int) {
+	if lState.GetTop() != argsRequired {
+		lState.ArgError(argsRequired, fmt.Sprintf("%d args expected", argsRequired))
 	}
 }
