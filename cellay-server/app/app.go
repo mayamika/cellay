@@ -10,6 +10,7 @@ import (
 	"github.com/mayamika/cellay/cellay-server/internal/grpcserver"
 	"github.com/mayamika/cellay/cellay-server/internal/httpserver"
 	"github.com/mayamika/cellay/cellay-server/internal/logger"
+	"github.com/mayamika/cellay/cellay-server/internal/matchesmanager"
 )
 
 type Config struct {
@@ -46,6 +47,7 @@ func New(config *Config) *fx.App {
 		fx.Provide(games.NewService),
 		fx.Provide(matches.NewService),
 		fx.Provide(gamesstorage.New),
+		fx.Provide(matchesmanager.New),
 		fx.Invoke(onStart),
 	)
 }

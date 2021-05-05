@@ -21,9 +21,6 @@ type Manager struct {
 	matchTokens map[string]struct{} //nolint:unused // Not implemented
 }
 
-type Config struct {
-}
-
 type Params struct {
 	fx.In
 

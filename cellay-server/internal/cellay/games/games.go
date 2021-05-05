@@ -90,6 +90,16 @@ func (s *Service) GetAll(
 	}, nil
 }
 
+func (s *Service) Add(
+	ctx context.Context,
+	req *cellayv1.GamesServiceAddRequest,
+) (*cellayv1.GamesServiceAddResponse, error) {
+	if err := s.storage.AddGame(ctx, gameFromProto(req)); err != nil {
+		return nil, errInternalf("can't add game to storage: %w", err)
+	}
+	return &cellayv1.GamesServiceAddResponse{}, nil
+}
+
 func errInternal(err error) error {
 	return status.Error(codes.Internal, err.Error())
 }
@@ -122,6 +132,28 @@ func gameAssetsToProto(assets *gamesstorage.GameAssets) *cellayv1.GamesServiceGe
 		Field: &cellayv1.GameAssetsField{
 			Rows: assets.Field.Rows,
 			Cols: assets.Field.Cols,
+		},
+		Layers: layers,
+	}
+}
+
+func gameFromProto(req *cellayv1.GamesServiceAddRequest) *gamesstorage.Game {
+	layers := make(map[string]*gamesstorage.GameAssetsLayer)
+	for name, layer := range req.GetLayers() {
+		layers[name] = &gamesstorage.GameAssetsLayer{
+			Width:   layer.GetWidth(),
+			Height:  layer.GetHeight(),
+			Depth:   layer.GetDepth(),
+			Texture: layer.GetTexture(),
+		}
+	}
+	return &gamesstorage.Game{
+		Name:        req.GetName(),
+		Description: req.GetDescription(),
+		Code:        req.GetCode(),
+		Field: gamesstorage.GameAssetsField{
+			Rows: req.GetField().GetRows(),
+			Cols: req.GetField().GetCols(),
 		},
 		Layers: layers,
 	}
