@@ -37,9 +37,9 @@ func (s *Service) New(
 	return nil, status.Errorf(codes.Unimplemented, "method New not implemented")
 }
 
-func (s *Service) Login(
+func (s *Service) Info(
 	ctx context.Context,
-	req *cellayv1.MatchesServiceLoginRequest,
-) (*cellayv1.MatchesServiceLoginResponse, error) {
+	req *cellayv1.MatchesServiceInfoRequest,
+) (*cellayv1.MatchesServiceInfoResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
 }

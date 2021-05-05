@@ -133,16 +133,18 @@ message MatchesServiceNewRequest {
 }
 
 message MatchesServiceNewResponse {
-  string id = 1;
+  string session = 1;
+  string key = 2;
 }
 
-message MatchesServiceLoginRequest {
-  string id = 1;
+message MatchesServiceInfoRequest {
+  string session = 1;
+  bool new = 2;
 }
 
-message MatchesServiceLoginResponse {
-  string game_id = 1;
-  string credentials = 2;
+message MatchesServiceInfoResponse {
+  int32 game_id = 1;
+  string key = 2;
 }
 
 service MatchesService {
@@ -150,15 +152,12 @@ service MatchesService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       description: "Start new match";
     };
-    option (google.api.http) = {
-      post: "/matches";
-      body: "*";
-    };
+    option (google.api.http).get = "/matches/new/{game_id}";
   };
-  rpc Login(MatchesServiceLoginRequest) returns (MatchesServiceLoginResponse) {
+  rpc Info(MatchesServiceInfoRequest) returns (MatchesServiceInfoResponse) {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      description: "Get match Centrifuge credentials";
+      description: "Get match info";
     };
-    option (google.api.http).get = "/matches/{id}";
+    option (google.api.http).get = "/matches/info/{session}";
   };
 }

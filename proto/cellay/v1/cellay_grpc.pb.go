@@ -249,7 +249,7 @@ var GamesService_ServiceDesc = grpc.ServiceDesc{
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MatchesServiceClient interface {
 	New(ctx context.Context, in *MatchesServiceNewRequest, opts ...grpc.CallOption) (*MatchesServiceNewResponse, error)
-	Login(ctx context.Context, in *MatchesServiceLoginRequest, opts ...grpc.CallOption) (*MatchesServiceLoginResponse, error)
+	Info(ctx context.Context, in *MatchesServiceInfoRequest, opts ...grpc.CallOption) (*MatchesServiceInfoResponse, error)
 }
 
 type matchesServiceClient struct {
@@ -269,9 +269,9 @@ func (c *matchesServiceClient) New(ctx context.Context, in *MatchesServiceNewReq
 	return out, nil
 }
 
-func (c *matchesServiceClient) Login(ctx context.Context, in *MatchesServiceLoginRequest, opts ...grpc.CallOption) (*MatchesServiceLoginResponse, error) {
-	out := new(MatchesServiceLoginResponse)
-	err := c.cc.Invoke(ctx, "/cellay.v1.MatchesService/Login", in, out, opts...)
+func (c *matchesServiceClient) Info(ctx context.Context, in *MatchesServiceInfoRequest, opts ...grpc.CallOption) (*MatchesServiceInfoResponse, error) {
+	out := new(MatchesServiceInfoResponse)
+	err := c.cc.Invoke(ctx, "/cellay.v1.MatchesService/Info", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -283,7 +283,7 @@ func (c *matchesServiceClient) Login(ctx context.Context, in *MatchesServiceLogi
 // for forward compatibility
 type MatchesServiceServer interface {
 	New(context.Context, *MatchesServiceNewRequest) (*MatchesServiceNewResponse, error)
-	Login(context.Context, *MatchesServiceLoginRequest) (*MatchesServiceLoginResponse, error)
+	Info(context.Context, *MatchesServiceInfoRequest) (*MatchesServiceInfoResponse, error)
 	mustEmbedUnimplementedMatchesServiceServer()
 }
 
@@ -294,8 +294,8 @@ type UnimplementedMatchesServiceServer struct {
 func (UnimplementedMatchesServiceServer) New(context.Context, *MatchesServiceNewRequest) (*MatchesServiceNewResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method New not implemented")
 }
-func (UnimplementedMatchesServiceServer) Login(context.Context, *MatchesServiceLoginRequest) (*MatchesServiceLoginResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
+func (UnimplementedMatchesServiceServer) Info(context.Context, *MatchesServiceInfoRequest) (*MatchesServiceInfoResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Info not implemented")
 }
 func (UnimplementedMatchesServiceServer) mustEmbedUnimplementedMatchesServiceServer() {}
 
@@ -328,20 +328,20 @@ func _MatchesService_New_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
-func _MatchesService_Login_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MatchesServiceLoginRequest)
+func _MatchesService_Info_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MatchesServiceInfoRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MatchesServiceServer).Login(ctx, in)
+		return srv.(MatchesServiceServer).Info(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/cellay.v1.MatchesService/Login",
+		FullMethod: "/cellay.v1.MatchesService/Info",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MatchesServiceServer).Login(ctx, req.(*MatchesServiceLoginRequest))
+		return srv.(MatchesServiceServer).Info(ctx, req.(*MatchesServiceInfoRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -358,8 +358,8 @@ var MatchesService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _MatchesService_New_Handler,
 		},
 		{
-			MethodName: "Login",
-			Handler:    _MatchesService_Login_Handler,
+			MethodName: "Info",
+			Handler:    _MatchesService_Info_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
