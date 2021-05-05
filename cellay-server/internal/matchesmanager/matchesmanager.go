@@ -19,7 +19,7 @@ type Manager struct {
 	storage *gamesstorage.Storage
 
 	mu      sync.Mutex
-	matches map[string]*match.Match //nolint:unused // Not implemented
+	matches map[string]*match.Match
 }
 
 type Params struct {
@@ -58,15 +58,15 @@ func New(p Params) (*Manager, error) {
 func (m *Manager) StartMatch(ctx context.Context, gameID int32) (string, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	match, err := m.newMatch(ctx, gameID)
+	ma, err := m.newMatch(ctx, gameID)
 	if err != nil {
 		return "", fmt.Errorf("can't create new match: %w", err)
 	}
-	token, err := m.generateMatchToken(ctx, match)
+	tk, err := m.generateMatchToken(ctx, ma)
 	if err != nil {
 		return "", fmt.Errorf("can't generate match token: %w", err)
 	}
-	return token, nil
+	return tk, nil
 }
 
 func (m *Manager) newMatch(ctx context.Context, gameID int32) (*match.Match, error) {
@@ -92,15 +92,15 @@ func (m *Manager) newMatch(ctx context.Context, gameID int32) (*match.Match, err
 	})
 }
 
-func (m *Manager) generateMatchToken(ctx context.Context, match *match.Match) (string, error) {
+func (m *Manager) generateMatchToken(ctx context.Context, ma *match.Match) (string, error) {
 	for {
 		if err := ctx.Err(); err != nil {
 			return "", err
 		}
-		t := token.New()
-		if _, exists := m.matches[t]; !exists {
-			m.matches[t] = match
-			return t, nil
+		tk := token.New()
+		if _, exists := m.matches[tk]; !exists {
+			m.matches[tk] = ma
+			return tk, nil
 		}
 	}
 }
