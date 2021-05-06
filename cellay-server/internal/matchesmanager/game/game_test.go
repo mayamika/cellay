@@ -1,4 +1,4 @@
-package match
+package game
 
 import (
 	"testing"
@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestMatch(t *testing.T) {
+func TestGame(t *testing.T) {
 	t.Run("TicTacToe", testTicTacToe)
 }
 
@@ -126,7 +126,7 @@ func testTicTacToe(t *testing.T) {
 
 func testTicTacToeVerticalWin(t *testing.T, code string) {
 	r := require.New(t)
-	match, err := New(&Config{
+	game, err := New(&Config{
 		Code: code,
 		Field: Field{
 			Cols: 3,
@@ -138,7 +138,7 @@ func testTicTacToeVerticalWin(t *testing.T, code string) {
 	// ___
 	// ___
 	// ___
-	state, err := match.Start()
+	state, err := game.Start()
 	r.NoError(err)
 	r.Equal(&State{
 		Table: map[string][][]int{
@@ -152,38 +152,38 @@ func testTicTacToeVerticalWin(t *testing.T, code string) {
 	// ___
 	// _x_
 	// ___
-	testCorrectTicTacToeMove(t, match, state, 1, 1, 1)
-	testOutOfBoundsTicTacToeMove(t, match, 2, 5, 4)
-	testAnotherPlayersTurnTicTacToeMove(t, match, state, 1, 2, 0)
+	testCorrectTicTacToeMove(t, game, state, 1, 1, 1)
+	testOutOfBoundsTicTacToeMove(t, game, 2, 5, 4)
+	testAnotherPlayersTurnTicTacToeMove(t, game, state, 1, 2, 0)
 	// __0
 	// _x_
 	// ___
-	testCorrectTicTacToeMove(t, match, state, 2, 2, 0)
+	testCorrectTicTacToeMove(t, game, state, 2, 2, 0)
 	// __0
 	// _x_
 	// __x
-	testCorrectTicTacToeMove(t, match, state, 1, 2, 2)
+	testCorrectTicTacToeMove(t, game, state, 1, 2, 2)
 	// 0_0
 	// _x_
 	// __x
-	testCorrectTicTacToeMove(t, match, state, 2, 0, 0)
+	testCorrectTicTacToeMove(t, game, state, 2, 0, 0)
 	// 0x0
 	// _x_
 	// __x
-	testCorrectTicTacToeMove(t, match, state, 1, 1, 0)
+	testCorrectTicTacToeMove(t, game, state, 1, 1, 0)
 	// 0x0
 	// 0x_
 	// __x
-	testCorrectTicTacToeMove(t, match, state, 2, 0, 1)
+	testCorrectTicTacToeMove(t, game, state, 2, 0, 1)
 	// 0x0
 	// 0x_
 	// _xx
-	testWinTicTacToeMove(t, match, state, 1, 1, 2)
+	testWinTicTacToeMove(t, game, state, 1, 1, 2)
 }
 
 func testTicTacToeHorizontalWin(t *testing.T, code string) {
 	r := require.New(t)
-	match, err := New(&Config{
+	game, err := New(&Config{
 		Code: code,
 		Field: Field{
 			Cols: 3,
@@ -195,7 +195,7 @@ func testTicTacToeHorizontalWin(t *testing.T, code string) {
 	// ___
 	// ___
 	// ___
-	state, err := match.Start()
+	state, err := game.Start()
 	r.NoError(err)
 	r.Equal(&State{
 		Table: map[string][][]int{
@@ -209,30 +209,30 @@ func testTicTacToeHorizontalWin(t *testing.T, code string) {
 	// ___
 	// _x_
 	// ___
-	testCorrectTicTacToeMove(t, match, state, 1, 1, 1)
-	testOutOfBoundsTicTacToeMove(t, match, 2, 5, 4)
-	testAnotherPlayersTurnTicTacToeMove(t, match, state, 1, 2, 0)
+	testCorrectTicTacToeMove(t, game, state, 1, 1, 1)
+	testOutOfBoundsTicTacToeMove(t, game, 2, 5, 4)
+	testAnotherPlayersTurnTicTacToeMove(t, game, state, 1, 2, 0)
 	// __0
 	// _x_
 	// ___
-	testCorrectTicTacToeMove(t, match, state, 2, 2, 0)
+	testCorrectTicTacToeMove(t, game, state, 2, 2, 0)
 	// __0
 	// _xx
 	// ___
-	testCorrectTicTacToeMove(t, match, state, 1, 2, 1)
+	testCorrectTicTacToeMove(t, game, state, 1, 2, 1)
 	// _00
 	// _xx
 	// ___
-	testCorrectTicTacToeMove(t, match, state, 2, 1, 0)
+	testCorrectTicTacToeMove(t, game, state, 2, 1, 0)
 	// _00
 	// xxx
 	// ___
-	testWinTicTacToeMove(t, match, state, 1, 0, 1)
+	testWinTicTacToeMove(t, game, state, 1, 0, 1)
 }
 
 func testTicTacToeDiagonalWin(t *testing.T, code string) {
 	r := require.New(t)
-	match, err := New(&Config{
+	game, err := New(&Config{
 		Code: code,
 		Field: Field{
 			Cols: 3,
@@ -244,7 +244,7 @@ func testTicTacToeDiagonalWin(t *testing.T, code string) {
 	// ___
 	// ___
 	// ___
-	state, err := match.Start()
+	state, err := game.Start()
 	r.NoError(err)
 	r.Equal(&State{
 		Table: map[string][][]int{
@@ -258,30 +258,30 @@ func testTicTacToeDiagonalWin(t *testing.T, code string) {
 	// ___
 	// _x_
 	// ___
-	testCorrectTicTacToeMove(t, match, state, 1, 1, 1)
-	testOutOfBoundsTicTacToeMove(t, match, 2, 5, 4)
-	testAnotherPlayersTurnTicTacToeMove(t, match, state, 1, 2, 0)
+	testCorrectTicTacToeMove(t, game, state, 1, 1, 1)
+	testOutOfBoundsTicTacToeMove(t, game, 2, 5, 4)
+	testAnotherPlayersTurnTicTacToeMove(t, game, state, 1, 2, 0)
 	// __0
 	// _x_
 	// ___
-	testCorrectTicTacToeMove(t, match, state, 2, 2, 0)
+	testCorrectTicTacToeMove(t, game, state, 2, 2, 0)
 	// __0
 	// _x_
 	// __x
-	testCorrectTicTacToeMove(t, match, state, 1, 2, 2)
+	testCorrectTicTacToeMove(t, game, state, 1, 2, 2)
 	// _00
 	// _x_
 	// __x
-	testCorrectTicTacToeMove(t, match, state, 2, 1, 0)
+	testCorrectTicTacToeMove(t, game, state, 2, 1, 0)
 	// x00
 	// _x_
 	// __x
-	testWinTicTacToeMove(t, match, state, 1, 0, 0)
+	testWinTicTacToeMove(t, game, state, 1, 0, 0)
 }
 
 func testTicTacToeDraw(t *testing.T, code string) {
 	r := require.New(t)
-	match, err := New(&Config{
+	game, err := New(&Config{
 		Code: code,
 		Field: Field{
 			Cols: 3,
@@ -293,7 +293,7 @@ func testTicTacToeDraw(t *testing.T, code string) {
 	// ___
 	// ___
 	// ___
-	state, err := match.Start()
+	state, err := game.Start()
 	r.NoError(err)
 	r.Equal(&State{
 		Table: map[string][][]int{
@@ -307,50 +307,50 @@ func testTicTacToeDraw(t *testing.T, code string) {
 	// ___
 	// _x_
 	// ___
-	testCorrectTicTacToeMove(t, match, state, 1, 1, 1)
-	testOutOfBoundsTicTacToeMove(t, match, 2, 5, 4)
-	testAnotherPlayersTurnTicTacToeMove(t, match, state, 1, 2, 0)
+	testCorrectTicTacToeMove(t, game, state, 1, 1, 1)
+	testOutOfBoundsTicTacToeMove(t, game, 2, 5, 4)
+	testAnotherPlayersTurnTicTacToeMove(t, game, state, 1, 2, 0)
 	// __0
 	// _x_
 	// ___
-	testCorrectTicTacToeMove(t, match, state, 2, 2, 0)
-	testOutOfBoundsTicTacToeMove(t, match, 1, 2, 3)
-	testAnotherPlayersTurnTicTacToeMove(t, match, state, 2, 0, 1)
+	testCorrectTicTacToeMove(t, game, state, 2, 2, 0)
+	testOutOfBoundsTicTacToeMove(t, game, 1, 2, 3)
+	testAnotherPlayersTurnTicTacToeMove(t, game, state, 2, 0, 1)
 	// __0
 	// _x_
 	// __x
-	testCorrectTicTacToeMove(t, match, state, 1, 2, 2)
+	testCorrectTicTacToeMove(t, game, state, 1, 2, 2)
 	// 0_0
 	// _x_
 	// __x
-	testCorrectTicTacToeMove(t, match, state, 2, 0, 0)
+	testCorrectTicTacToeMove(t, game, state, 2, 0, 0)
 	// 0x0
 	// _x_
 	// __x
-	testCorrectTicTacToeMove(t, match, state, 1, 1, 0)
+	testCorrectTicTacToeMove(t, game, state, 1, 1, 0)
 	// 0x0
 	// 0x_
 	// __x
-	testCorrectTicTacToeMove(t, match, state, 2, 0, 1)
+	testCorrectTicTacToeMove(t, game, state, 2, 0, 1)
 	// 0x0
 	// 0x_
 	// x_x
-	testCorrectTicTacToeMove(t, match, state, 1, 0, 2)
+	testCorrectTicTacToeMove(t, game, state, 1, 0, 2)
 	// 0x0
 	// 0x_
 	// x0x
-	testCorrectTicTacToeMove(t, match, state, 2, 1, 2)
+	testCorrectTicTacToeMove(t, game, state, 2, 1, 2)
 	// 0x0
 	// 0xx
 	// x0x
-	testDrawTicTacToeMove(t, match, state, 1, 2, 1)
+	testDrawTicTacToeMove(t, game, state, 1, 2, 1)
 }
 
-func testCorrectTicTacToeMove(t *testing.T, m *Match, state *State, player, x, y int) {
+func testCorrectTicTacToeMove(t *testing.T, g *Game, state *State, player, x, y int) {
 	t.Helper()
 	r := require.New(t)
 	state.Table["main"][x][y] = player
-	newState, err := m.HandleClick(&Click{
+	newState, err := g.HandleClick(&Click{
 		Coords: Coords{
 			X: x,
 			Y: y,
@@ -361,7 +361,7 @@ func testCorrectTicTacToeMove(t *testing.T, m *Match, state *State, player, x, y
 	r.Equal(state, newState)
 }
 
-func testWinTicTacToeMove(t *testing.T, m *Match, state *State, player, x, y int) {
+func testWinTicTacToeMove(t *testing.T, g *Game, state *State, player, x, y int) {
 	t.Helper()
 	r := require.New(t)
 	state.Table["main"][x][y] = player
@@ -369,7 +369,7 @@ func testWinTicTacToeMove(t *testing.T, m *Match, state *State, player, x, y int
 		Type:   EventTypeWin,
 		Player: player,
 	}
-	newState, err := m.HandleClick(&Click{
+	newState, err := g.HandleClick(&Click{
 		Coords: Coords{
 			X: x,
 			Y: y,
@@ -380,14 +380,14 @@ func testWinTicTacToeMove(t *testing.T, m *Match, state *State, player, x, y int
 	r.Equal(state, newState)
 }
 
-func testDrawTicTacToeMove(t *testing.T, m *Match, state *State, player, x, y int) {
+func testDrawTicTacToeMove(t *testing.T, g *Game, state *State, player, x, y int) {
 	t.Helper()
 	r := require.New(t)
 	state.Table["main"][x][y] = player
 	state.Event = &Event{
 		Type: EventTypeDraw,
 	}
-	newState, err := m.HandleClick(&Click{
+	newState, err := g.HandleClick(&Click{
 		Coords: Coords{
 			X: x,
 			Y: y,
@@ -398,10 +398,10 @@ func testDrawTicTacToeMove(t *testing.T, m *Match, state *State, player, x, y in
 	r.Equal(state, newState)
 }
 
-func testOutOfBoundsTicTacToeMove(t *testing.T, m *Match, player, x, y int) {
+func testOutOfBoundsTicTacToeMove(t *testing.T, g *Game, player, x, y int) {
 	t.Helper()
 	r := require.New(t)
-	newState, err := m.HandleClick(&Click{
+	newState, err := g.HandleClick(&Click{
 		Coords: Coords{
 			X: x,
 			Y: y,
@@ -412,10 +412,10 @@ func testOutOfBoundsTicTacToeMove(t *testing.T, m *Match, player, x, y int) {
 	r.Nil(newState)
 }
 
-func testAnotherPlayersTurnTicTacToeMove(t *testing.T, m *Match, state *State, player, x, y int) {
+func testAnotherPlayersTurnTicTacToeMove(t *testing.T, g *Game, state *State, player, x, y int) {
 	t.Helper()
 	r := require.New(t)
-	newState, err := m.HandleClick(&Click{
+	newState, err := g.HandleClick(&Click{
 		Coords: Coords{
 			X: x,
 			Y: y,

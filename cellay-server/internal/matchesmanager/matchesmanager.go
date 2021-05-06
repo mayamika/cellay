@@ -10,7 +10,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/mayamika/cellay/cellay-server/internal/gamesstorage"
-	"github.com/mayamika/cellay/cellay-server/internal/matchesmanager/match"
+	"github.com/mayamika/cellay/cellay-server/internal/matchesmanager/game"
 	"github.com/mayamika/cellay/cellay-server/internal/token"
 )
 
@@ -19,7 +19,7 @@ type Manager struct {
 	storage *gamesstorage.Storage
 
 	mu      sync.Mutex
-	matches map[string]*match.Match
+	matches map[string]*game.Game
 }
 
 type Params struct {
@@ -69,7 +69,7 @@ func (m *Manager) StartMatch(ctx context.Context, gameID int32) (string, error) 
 	return tk, nil
 }
 
-func (m *Manager) newMatch(ctx context.Context, gameID int32) (*match.Match, error) {
+func (m *Manager) newMatch(ctx context.Context, gameID int32) (*game.Game, error) {
 	code, err := m.storage.GameCode(ctx, gameID)
 	if err != nil {
 		return nil, fmt.Errorf("can't fetch game code: %w", err)
@@ -82,9 +82,9 @@ func (m *Manager) newMatch(ctx context.Context, gameID int32) (*match.Match, err
 	for name := range assets.Layers {
 		layers = append(layers, name)
 	}
-	return match.New(&match.Config{
+	return game.New(&game.Config{
 		Code: code.Code,
-		Field: match.Field{
+		Field: game.Field{
 			Cols: int(assets.Field.Cols),
 			Rows: int(assets.Field.Rows),
 		},
@@ -92,7 +92,7 @@ func (m *Manager) newMatch(ctx context.Context, gameID int32) (*match.Match, err
 	})
 }
 
-func (m *Manager) generateMatchToken(ctx context.Context, ma *match.Match) (string, error) {
+func (m *Manager) generateMatchToken(ctx context.Context, ma *game.Game) (string, error) {
 	for {
 		if err := ctx.Err(); err != nil {
 			return "", err

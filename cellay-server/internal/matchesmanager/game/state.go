@@ -1,4 +1,4 @@
-package match
+package game
 
 import (
 	lua "github.com/yuin/gopher-lua"

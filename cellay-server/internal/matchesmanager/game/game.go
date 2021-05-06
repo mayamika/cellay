@@ -1,4 +1,4 @@
-package match
+package game
 
 import (
 	"errors"
@@ -13,7 +13,7 @@ var (
 	ErrLuaCallFailed   = errors.New("lua function call failed")
 )
 
-type Match struct {
+type Game struct {
 	mu            sync.Mutex
 	lState        *lua.LState
 	startFn       lua.P
@@ -38,7 +38,7 @@ type Coords struct {
 }
 
 const (
-	matchStartFnName  = "init_game"
+	gameStartFnName   = "init_game"
 	handleMoveFnName  = "handle_move"
 	handleClickFnName = "handle_click"
 )
@@ -67,8 +67,8 @@ func (te *typeError) Error() string {
 	return fmt.Sprintf("value %q has invalid type: %s", te.name, te.reason)
 }
 
-func New(config *Config) (*Match, error) {
-	m := &Match{
+func New(config *Config) (*Game, error) {
+	g := &Game{
 		lState: lua.NewState(),
 		state: newState(
 			config.Field.Cols,
@@ -76,51 +76,51 @@ func New(config *Config) (*Match, error) {
 			config.Layers,
 		),
 	}
-	if err := m.parseCode(config.Code); err != nil {
+	if err := g.parseCode(config.Code); err != nil {
 		return nil, wrapErr(ErrCodeParseFailed, err)
 	}
-	return m, nil
+	return g, nil
 }
 
-func (m *Match) Start() (*State, error) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	if err := m.callStart(); err != nil {
+func (g *Game) Start() (*State, error) {
+	g.mu.Lock()
+	defer g.mu.Unlock()
+	if err := g.callStart(); err != nil {
 		return nil, wrapErr(ErrLuaCallFailed, err)
 	}
-	return stateCopy(m.state), nil
+	return stateCopy(g.state), nil
 }
 
-func (m *Match) HandleClick(click *Click) (*State, error) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	if err := m.callHandleClick(click); err != nil {
+func (g *Game) HandleClick(click *Click) (*State, error) {
+	g.mu.Lock()
+	defer g.mu.Unlock()
+	if err := g.callHandleClick(click); err != nil {
 		return nil, wrapErr(ErrLuaCallFailed, err)
 	}
-	return stateCopy(m.state), nil
+	return stateCopy(g.state), nil
 }
 
-func (m *Match) HandleMove(move *Move) (*State, error) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	return stateCopy(m.state), errors.New("not implemented") //nolint:goerr113 // Not implemented
+func (g *Game) HandleMove(move *Move) (*State, error) {
+	g.mu.Lock()
+	defer g.mu.Unlock()
+	return stateCopy(g.state), errors.New("not implemented") //nolint:goerr113 // Not implemented
 }
 
-func (m *Match) parseCode(code string) error {
-	if err := m.lState.DoString(code); err != nil {
+func (g *Game) parseCode(code string) error {
+	if err := g.lState.DoString(code); err != nil {
 		return err
 	}
-	registerTypes(m.lState)
+	registerTypes(g.lState)
 	var err error
-	m.startFn, err = loadLuaFunction(m.lState, matchStartFnName, 0)
+	g.startFn, err = loadLuaFunction(g.lState, gameStartFnName, 0)
 	if err != nil {
 		return err
 	}
-	m.handleMoveFn, err = loadLuaFunction(m.lState, handleMoveFnName, 1)
+	g.handleMoveFn, err = loadLuaFunction(g.lState, handleMoveFnName, 1)
 	if err != nil {
 		return err
 	}
-	m.handleClickFn, err = loadLuaFunction(m.lState, handleClickFnName, 1)
+	g.handleClickFn, err = loadLuaFunction(g.lState, handleClickFnName, 1)
 	if err != nil {
 		return err
 	}
@@ -133,23 +133,23 @@ func registerTypes(lState *lua.LState) {
 	registerStateType(lState)
 }
 
-func (m *Match) callStart() error {
-	return m.lState.CallByParam(
-		m.startFn,
-		newStateUserData(m.lState, m.state),
+func (g *Game) callStart() error {
+	return g.lState.CallByParam(
+		g.startFn,
+		newStateUserData(g.lState, g.state),
 	)
 }
 
-func (m *Match) callHandleClick(click *Click) error {
-	if err := m.lState.CallByParam(
-		m.handleClickFn,
-		newStateUserData(m.lState, m.state),
-		newClickUserData(m.lState, click),
+func (g *Game) callHandleClick(click *Click) error {
+	if err := g.lState.CallByParam(
+		g.handleClickFn,
+		newStateUserData(g.lState, g.state),
+		newClickUserData(g.lState, click),
 	); err != nil {
 		return err
 	}
-	m.state.Event = eventFromLua(m.lState, 1)
-	m.lState.Pop(1)
+	g.state.Event = eventFromLua(g.lState, 1)
+	g.lState.Pop(1)
 	return nil
 }
 

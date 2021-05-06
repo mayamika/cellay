@@ -1,4 +1,4 @@
-package match
+package game
 
 // TODO: Implement Lua methods
 type Move struct {
