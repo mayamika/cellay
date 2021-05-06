@@ -2,7 +2,6 @@ package games
 
 import (
 	"context"
-	"fmt"
 
 	"go.uber.org/fx"
 	"google.golang.org/grpc"
@@ -42,7 +41,7 @@ func (s *Service) GetInfo(
 ) (*cellayv1.GamesServiceGetInfoResponse, error) {
 	info, err := s.storage.GameInfo(ctx, req.GetId())
 	if err != nil {
-		return nil, errInternalf("can't get game info from storage: %w", err)
+		return nil, errInternalf("can't get game info from storage: %v", err)
 	}
 	return gameInfoToProto(info), nil
 }
@@ -53,7 +52,7 @@ func (s *Service) GetCode(
 ) (*cellayv1.GamesServiceGetCodeResponse, error) {
 	code, err := s.storage.GameCode(ctx, req.GetId())
 	if err != nil {
-		return nil, errInternalf("can't get game code from storage: %w", err)
+		return nil, errInternalf("can't get game code from storage: %v", err)
 	}
 	return &cellayv1.GamesServiceGetCodeResponse{
 		Id:   code.ID,
@@ -67,7 +66,7 @@ func (s *Service) GetAssets(
 ) (*cellayv1.GamesServiceGetAssetsResponse, error) {
 	assets, err := s.storage.GameAssets(ctx, req.GetId())
 	if err != nil {
-		return nil, errInternalf("can't get game assets from storage: %w", err)
+		return nil, errInternalf("can't get game assets from storage: %v", err)
 	}
 	return gameAssetsToProto(assets), nil
 }
@@ -78,7 +77,7 @@ func (s *Service) GetAll(
 ) (*cellayv1.GamesServiceGetAllResponse, error) {
 	games, err := s.storage.AllGames(ctx)
 	if err != nil {
-		return nil, errInternalf("can't get games from storage: %w", err)
+		return nil, errInternalf("can't get games from storage: %v", err)
 	}
 	var gamesProto []*cellayv1.GamesServiceGetInfoResponse
 	for _, info := range games {
@@ -95,18 +94,13 @@ func (s *Service) Add(
 	req *cellayv1.GamesServiceAddRequest,
 ) (*cellayv1.GamesServiceAddResponse, error) {
 	if err := s.storage.AddGame(ctx, gameFromProto(req)); err != nil {
-		return nil, errInternalf("can't add game to storage: %w", err)
+		return nil, errInternalf("can't add game to storage: %v", err)
 	}
 	return &cellayv1.GamesServiceAddResponse{}, nil
 }
 
-func errInternal(err error) error {
-	return status.Error(codes.Internal, err.Error())
-}
-
-//nolint:goerr113 // Helper function
 func errInternalf(format string, args ...interface{}) error {
-	return errInternal(fmt.Errorf(format, args...))
+	return status.Errorf(codes.Internal, format, args...)
 }
 
 func gameInfoToProto(info *gamesstorage.GameInfo) *cellayv1.GamesServiceGetInfoResponse {

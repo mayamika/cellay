@@ -2,6 +2,7 @@ package matchesmanager
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"sync"
 
@@ -10,16 +11,24 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/mayamika/cellay/cellay-server/internal/gamesstorage"
-	"github.com/mayamika/cellay/cellay-server/internal/matchesmanager/game"
 	"github.com/mayamika/cellay/cellay-server/internal/token"
+)
+
+var (
+	ErrMatchNotFound = errors.New("match not found")
+	ErrAllKeysGiven  = errors.New("all player keys were given")
 )
 
 type Manager struct {
 	node    *centrifuge.Node
 	storage *gamesstorage.Storage
 
-	mu      sync.Mutex
-	matches map[string]*game.Game
+	mu      sync.RWMutex
+	matches map[string]*match
+}
+
+type MatchInfo struct {
+	GameID int32
 }
 
 type Params struct {
@@ -55,10 +64,34 @@ func New(p Params) (*Manager, error) {
 	}, nil
 }
 
+func (m *Manager) NewPlayerKey(session string) (string, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if ma, ok := m.matches[session]; ok {
+		key, keyOk := ma.newPlayerKey()
+		if !keyOk {
+			return "", ErrAllKeysGiven
+		}
+		return key, nil
+	}
+	return "", ErrMatchNotFound
+}
+
+func (m *Manager) MatchInfo(session string) (*MatchInfo, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	if ma, ok := m.matches[session]; ok {
+		return &MatchInfo{
+			GameID: ma.gameID,
+		}, nil
+	}
+	return nil, ErrMatchNotFound
+}
+
 func (m *Manager) StartMatch(ctx context.Context, gameID int32) (string, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	ma, err := m.newMatch(ctx, gameID)
+	ma, err := newMatch(ctx, m.storage, gameID)
 	if err != nil {
 		return "", fmt.Errorf("can't create new match: %w", err)
 	}
@@ -69,30 +102,7 @@ func (m *Manager) StartMatch(ctx context.Context, gameID int32) (string, error) 
 	return tk, nil
 }
 
-func (m *Manager) newMatch(ctx context.Context, gameID int32) (*game.Game, error) {
-	code, err := m.storage.GameCode(ctx, gameID)
-	if err != nil {
-		return nil, fmt.Errorf("can't fetch game code: %w", err)
-	}
-	assets, err := m.storage.GameAssets(ctx, gameID)
-	if err != nil {
-		return nil, fmt.Errorf("can't fetch game assets: %w", err)
-	}
-	layers := make([]string, 0)
-	for name := range assets.Layers {
-		layers = append(layers, name)
-	}
-	return game.New(&game.Config{
-		Code: code.Code,
-		Field: game.Field{
-			Cols: int(assets.Field.Cols),
-			Rows: int(assets.Field.Rows),
-		},
-		Layers: layers,
-	})
-}
-
-func (m *Manager) generateMatchToken(ctx context.Context, ma *game.Game) (string, error) {
+func (m *Manager) generateMatchToken(ctx context.Context, ma *match) (string, error) {
 	for {
 		if err := ctx.Err(); err != nil {
 			return "", err
