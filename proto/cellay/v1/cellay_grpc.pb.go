@@ -14,11 +14,242 @@ import (
 // Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
+// GamesServiceClient is the client API for GamesService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type GamesServiceClient interface {
+	GetInfo(ctx context.Context, in *GamesServiceGetInfoRequest, opts ...grpc.CallOption) (*GamesServiceGetInfoResponse, error)
+	GetCode(ctx context.Context, in *GamesServiceGetCodeRequest, opts ...grpc.CallOption) (*GamesServiceGetCodeResponse, error)
+	GetAssets(ctx context.Context, in *GamesServiceGetAssetsRequest, opts ...grpc.CallOption) (*GamesServiceGetAssetsResponse, error)
+	GetAll(ctx context.Context, in *GamesServiceGetAllRequest, opts ...grpc.CallOption) (*GamesServiceGetAllResponse, error)
+	Add(ctx context.Context, in *GamesServiceAddRequest, opts ...grpc.CallOption) (*GamesServiceAddResponse, error)
+}
+
+type gamesServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewGamesServiceClient(cc grpc.ClientConnInterface) GamesServiceClient {
+	return &gamesServiceClient{cc}
+}
+
+func (c *gamesServiceClient) GetInfo(ctx context.Context, in *GamesServiceGetInfoRequest, opts ...grpc.CallOption) (*GamesServiceGetInfoResponse, error) {
+	out := new(GamesServiceGetInfoResponse)
+	err := c.cc.Invoke(ctx, "/cellay.v1.GamesService/GetInfo", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *gamesServiceClient) GetCode(ctx context.Context, in *GamesServiceGetCodeRequest, opts ...grpc.CallOption) (*GamesServiceGetCodeResponse, error) {
+	out := new(GamesServiceGetCodeResponse)
+	err := c.cc.Invoke(ctx, "/cellay.v1.GamesService/GetCode", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *gamesServiceClient) GetAssets(ctx context.Context, in *GamesServiceGetAssetsRequest, opts ...grpc.CallOption) (*GamesServiceGetAssetsResponse, error) {
+	out := new(GamesServiceGetAssetsResponse)
+	err := c.cc.Invoke(ctx, "/cellay.v1.GamesService/GetAssets", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *gamesServiceClient) GetAll(ctx context.Context, in *GamesServiceGetAllRequest, opts ...grpc.CallOption) (*GamesServiceGetAllResponse, error) {
+	out := new(GamesServiceGetAllResponse)
+	err := c.cc.Invoke(ctx, "/cellay.v1.GamesService/GetAll", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *gamesServiceClient) Add(ctx context.Context, in *GamesServiceAddRequest, opts ...grpc.CallOption) (*GamesServiceAddResponse, error) {
+	out := new(GamesServiceAddResponse)
+	err := c.cc.Invoke(ctx, "/cellay.v1.GamesService/Add", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// GamesServiceServer is the server API for GamesService service.
+// All implementations must embed UnimplementedGamesServiceServer
+// for forward compatibility
+type GamesServiceServer interface {
+	GetInfo(context.Context, *GamesServiceGetInfoRequest) (*GamesServiceGetInfoResponse, error)
+	GetCode(context.Context, *GamesServiceGetCodeRequest) (*GamesServiceGetCodeResponse, error)
+	GetAssets(context.Context, *GamesServiceGetAssetsRequest) (*GamesServiceGetAssetsResponse, error)
+	GetAll(context.Context, *GamesServiceGetAllRequest) (*GamesServiceGetAllResponse, error)
+	Add(context.Context, *GamesServiceAddRequest) (*GamesServiceAddResponse, error)
+	mustEmbedUnimplementedGamesServiceServer()
+}
+
+// UnimplementedGamesServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedGamesServiceServer struct {
+}
+
+func (UnimplementedGamesServiceServer) GetInfo(context.Context, *GamesServiceGetInfoRequest) (*GamesServiceGetInfoResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetInfo not implemented")
+}
+func (UnimplementedGamesServiceServer) GetCode(context.Context, *GamesServiceGetCodeRequest) (*GamesServiceGetCodeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCode not implemented")
+}
+func (UnimplementedGamesServiceServer) GetAssets(context.Context, *GamesServiceGetAssetsRequest) (*GamesServiceGetAssetsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAssets not implemented")
+}
+func (UnimplementedGamesServiceServer) GetAll(context.Context, *GamesServiceGetAllRequest) (*GamesServiceGetAllResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAll not implemented")
+}
+func (UnimplementedGamesServiceServer) Add(context.Context, *GamesServiceAddRequest) (*GamesServiceAddResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Add not implemented")
+}
+func (UnimplementedGamesServiceServer) mustEmbedUnimplementedGamesServiceServer() {}
+
+// UnsafeGamesServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to GamesServiceServer will
+// result in compilation errors.
+type UnsafeGamesServiceServer interface {
+	mustEmbedUnimplementedGamesServiceServer()
+}
+
+func RegisterGamesServiceServer(s grpc.ServiceRegistrar, srv GamesServiceServer) {
+	s.RegisterService(&GamesService_ServiceDesc, srv)
+}
+
+func _GamesService_GetInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GamesServiceGetInfoRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GamesServiceServer).GetInfo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/cellay.v1.GamesService/GetInfo",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GamesServiceServer).GetInfo(ctx, req.(*GamesServiceGetInfoRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _GamesService_GetCode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GamesServiceGetCodeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GamesServiceServer).GetCode(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/cellay.v1.GamesService/GetCode",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GamesServiceServer).GetCode(ctx, req.(*GamesServiceGetCodeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _GamesService_GetAssets_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GamesServiceGetAssetsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GamesServiceServer).GetAssets(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/cellay.v1.GamesService/GetAssets",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GamesServiceServer).GetAssets(ctx, req.(*GamesServiceGetAssetsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _GamesService_GetAll_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GamesServiceGetAllRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GamesServiceServer).GetAll(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/cellay.v1.GamesService/GetAll",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GamesServiceServer).GetAll(ctx, req.(*GamesServiceGetAllRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _GamesService_Add_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GamesServiceAddRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GamesServiceServer).Add(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/cellay.v1.GamesService/Add",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GamesServiceServer).Add(ctx, req.(*GamesServiceAddRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// GamesService_ServiceDesc is the grpc.ServiceDesc for GamesService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var GamesService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "cellay.v1.GamesService",
+	HandlerType: (*GamesServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "GetInfo",
+			Handler:    _GamesService_GetInfo_Handler,
+		},
+		{
+			MethodName: "GetCode",
+			Handler:    _GamesService_GetCode_Handler,
+		},
+		{
+			MethodName: "GetAssets",
+			Handler:    _GamesService_GetAssets_Handler,
+		},
+		{
+			MethodName: "GetAll",
+			Handler:    _GamesService_GetAll_Handler,
+		},
+		{
+			MethodName: "Add",
+			Handler:    _GamesService_Add_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "cellay/v1/cellay.proto",
+}
+
 // MatchesServiceClient is the client API for MatchesService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MatchesServiceClient interface {
-	Start(ctx context.Context, in *MatchesServiceStartRequest, opts ...grpc.CallOption) (*MatchesServiceStartResponse, error)
+	New(ctx context.Context, in *MatchesServiceNewRequest, opts ...grpc.CallOption) (*MatchesServiceNewResponse, error)
+	Info(ctx context.Context, in *MatchesServiceInfoRequest, opts ...grpc.CallOption) (*MatchesServiceInfoResponse, error)
 }
 
 type matchesServiceClient struct {
@@ -29,9 +260,18 @@ func NewMatchesServiceClient(cc grpc.ClientConnInterface) MatchesServiceClient {
 	return &matchesServiceClient{cc}
 }
 
-func (c *matchesServiceClient) Start(ctx context.Context, in *MatchesServiceStartRequest, opts ...grpc.CallOption) (*MatchesServiceStartResponse, error) {
-	out := new(MatchesServiceStartResponse)
-	err := c.cc.Invoke(ctx, "/cellay.v1.MatchesService/Start", in, out, opts...)
+func (c *matchesServiceClient) New(ctx context.Context, in *MatchesServiceNewRequest, opts ...grpc.CallOption) (*MatchesServiceNewResponse, error) {
+	out := new(MatchesServiceNewResponse)
+	err := c.cc.Invoke(ctx, "/cellay.v1.MatchesService/New", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *matchesServiceClient) Info(ctx context.Context, in *MatchesServiceInfoRequest, opts ...grpc.CallOption) (*MatchesServiceInfoResponse, error) {
+	out := new(MatchesServiceInfoResponse)
+	err := c.cc.Invoke(ctx, "/cellay.v1.MatchesService/Info", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +282,8 @@ func (c *matchesServiceClient) Start(ctx context.Context, in *MatchesServiceStar
 // All implementations must embed UnimplementedMatchesServiceServer
 // for forward compatibility
 type MatchesServiceServer interface {
-	Start(context.Context, *MatchesServiceStartRequest) (*MatchesServiceStartResponse, error)
+	New(context.Context, *MatchesServiceNewRequest) (*MatchesServiceNewResponse, error)
+	Info(context.Context, *MatchesServiceInfoRequest) (*MatchesServiceInfoResponse, error)
 	mustEmbedUnimplementedMatchesServiceServer()
 }
 
@@ -50,8 +291,11 @@ type MatchesServiceServer interface {
 type UnimplementedMatchesServiceServer struct {
 }
 
-func (UnimplementedMatchesServiceServer) Start(context.Context, *MatchesServiceStartRequest) (*MatchesServiceStartResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Start not implemented")
+func (UnimplementedMatchesServiceServer) New(context.Context, *MatchesServiceNewRequest) (*MatchesServiceNewResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method New not implemented")
+}
+func (UnimplementedMatchesServiceServer) Info(context.Context, *MatchesServiceInfoRequest) (*MatchesServiceInfoResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Info not implemented")
 }
 func (UnimplementedMatchesServiceServer) mustEmbedUnimplementedMatchesServiceServer() {}
 
@@ -66,20 +310,38 @@ func RegisterMatchesServiceServer(s grpc.ServiceRegistrar, srv MatchesServiceSer
 	s.RegisterService(&MatchesService_ServiceDesc, srv)
 }
 
-func _MatchesService_Start_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MatchesServiceStartRequest)
+func _MatchesService_New_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MatchesServiceNewRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MatchesServiceServer).Start(ctx, in)
+		return srv.(MatchesServiceServer).New(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/cellay.v1.MatchesService/Start",
+		FullMethod: "/cellay.v1.MatchesService/New",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MatchesServiceServer).Start(ctx, req.(*MatchesServiceStartRequest))
+		return srv.(MatchesServiceServer).New(ctx, req.(*MatchesServiceNewRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MatchesService_Info_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MatchesServiceInfoRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MatchesServiceServer).Info(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/cellay.v1.MatchesService/Info",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MatchesServiceServer).Info(ctx, req.(*MatchesServiceInfoRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -92,59 +354,14 @@ var MatchesService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*MatchesServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Start",
-			Handler:    _MatchesService_Start_Handler,
+			MethodName: "New",
+			Handler:    _MatchesService_New_Handler,
+		},
+		{
+			MethodName: "Info",
+			Handler:    _MatchesService_Info_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "cellay/v1/cellay.proto",
-}
-
-// AssetsServiceClient is the client API for AssetsService service.
-//
-// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type AssetsServiceClient interface {
-}
-
-type assetsServiceClient struct {
-	cc grpc.ClientConnInterface
-}
-
-func NewAssetsServiceClient(cc grpc.ClientConnInterface) AssetsServiceClient {
-	return &assetsServiceClient{cc}
-}
-
-// AssetsServiceServer is the server API for AssetsService service.
-// All implementations must embed UnimplementedAssetsServiceServer
-// for forward compatibility
-type AssetsServiceServer interface {
-	mustEmbedUnimplementedAssetsServiceServer()
-}
-
-// UnimplementedAssetsServiceServer must be embedded to have forward compatible implementations.
-type UnimplementedAssetsServiceServer struct {
-}
-
-func (UnimplementedAssetsServiceServer) mustEmbedUnimplementedAssetsServiceServer() {}
-
-// UnsafeAssetsServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to AssetsServiceServer will
-// result in compilation errors.
-type UnsafeAssetsServiceServer interface {
-	mustEmbedUnimplementedAssetsServiceServer()
-}
-
-func RegisterAssetsServiceServer(s grpc.ServiceRegistrar, srv AssetsServiceServer) {
-	s.RegisterService(&AssetsService_ServiceDesc, srv)
-}
-
-// AssetsService_ServiceDesc is the grpc.ServiceDesc for AssetsService service.
-// It's only intended for direct use with grpc.RegisterService,
-// and not to be introspected or modified (even as a copy)
-var AssetsService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "cellay.v1.AssetsService",
-	HandlerType: (*AssetsServiceServer)(nil),
-	Methods:     []grpc.MethodDesc{},
-	Streams:     []grpc.StreamDesc{},
-	Metadata:    "cellay/v1/cellay.proto",
 }

@@ -4,29 +4,20 @@ SHELL	?= /bin/bash
 CURL	?= curl --silent
 GO		?= go
 
-# DIRS
+# Directories
 
-# build
-
-BIN_OUTPUT_DIR ?= bin
-
-# cache
-
-DOWNLOAD_CACHE_DIR ?= build/download
-
-# tools
-
-TOOLS_BIN_DIR ?= tools/bin
-
-# proto
-
-PROTO_DIR := proto
+BIN_OUTPUT_DIR 		?= bin
+DOWNLOAD_CACHE_DIR	?= build/download
+TOOLS_BIN_DIR		:= tools/bin
+PROTO_DIR			:= proto
 
 DEP_DIRS = $(BIN_OUTPUT_DIR) $(DOWNLOAD_CACHE_DIR) $(TOOLS_BIN_DIR)
 $(DEP_DIRS):
 	-mkdir -p $(DEP_DIRS)
 
-# TOOLS
+# Tools
+
+export TOOLS_PATH = $(CURDIR)/$(TOOLS_BIN_DIR)
 
 TOOLS_MODFILE := tools/go.mod
 define install-go-tool =
@@ -35,6 +26,9 @@ define install-go-tool =
 		-ldflags "-s -w" \
 		-modfile $(TOOLS_MODFILE)
 endef
+
+clean-tools:
+	-rm -rf $(TOOLS_BIN_DIR)
 
 PROTOC_VERSION := 3.14.0
 PROTOC_DIST_LINK := https://github.com/protocolbuffers/protobuf/releases/download/v$(PROTOC_VERSION)/protoc-$(PROTOC_VERSION)-linux-x86_64.zip
@@ -48,7 +42,19 @@ $(PROTOC_DIST_ARCHIVE): | $(DOWNLOAD_CACHE_DIR)
 $(PROTOC_DIST): | $(PROTOC_DIST_ARCHIVE)
 	unzip -d "$@" -o $|
 
-# proto tools
+## Codegen tools
+
+CODEGEN_TOOLS := $(TOOLS_BIN_DIR)/enumer
+$(TOOLS_BIN_DIR)/enumer: | $(TOOLS_BIN_DIR)
+	$(install-go-tool) github.com/alvaroloes/enumer
+
+## CI tools
+
+GO_LINT_TOOL = $(TOOLS_BIN_DIR)/golangci-lint
+$(GO_LINT_TOOL): | $(TOOLS_BIN_DIR)
+	$(install-go-tool) github.com/golangci/golangci-lint/cmd/golangci-lint
+
+## Proto tools
 
 PROTOC_TOOL = $(TOOLS_BIN_DIR)/protoc-$(PROTOC_VERSION)
 PROTO_TOOLS = $(PROTOC_TOOL)
@@ -75,7 +81,7 @@ PROTO_TOOLS += $(TOOLS_BIN_DIR)/protoc-gen-buf-lint
 $(TOOLS_BIN_DIR)/protoc-gen-buf-lint: | $(TOOLS_BIN_DIR)
 	$(install-go-tool) github.com/bufbuild/buf/cmd/protoc-gen-buf-lint
 
-# PROTO
+# Proto
 
 PROTO_PROTOBUF_FLAGS = \
 		-I$(PROTO_DIR) \
@@ -132,7 +138,7 @@ $(PROTO_CELLAY_SERVER_GENERATED): PROTO_OPENAPI_DIR = $(PROTO_CELLAY_SERVER_OPEN
 $(PROTO_CELLAY_SERVER_GENERATED): PROTO_FILES = $(PROTO_CELLAY_SERVER_FILES)
 $(PROTO_CELLAY_SERVER_GENERATED): .proto_cellay_server_generated ;
 
-# generate
+## Generate
 
 .PHONY: generate-proto-cellay-server
 generate-proto-cellay-server: $(PROTO_CELLAY_SERVER_GENERATED)
@@ -140,7 +146,7 @@ generate-proto-cellay-server: $(PROTO_CELLAY_SERVER_GENERATED)
 .PHONY: generate-proto
 generate-proto: generate-proto-cellay-server
 
-# clean
+## Cleanup
 
 .PHONY: clean-proto-cellay-server
 clean-proto-cellay-server:
@@ -148,3 +154,45 @@ clean-proto-cellay-server:
 
 .PHONY: clean-proto
 clean-proto: clean-proto-cellay-server
+
+# Lint
+
+.PHONY: lint
+lint: $(GO_LINT_TOOL)
+	$(GO_LINT_TOOL) run --sort-results
+
+# Generate
+
+.PHONY: generate-go
+generate-go: $(CODEGEN_TOOLS)
+	$(GO) generate ./...
+
+# Build
+
+GO_BUILD_TARGET_CELLAY_SERVER := $(BIN_OUTPUT_DIR)/cellay-server
+GO_BUILD_TARGETS = $(GO_BUILD_TARGET_CELLAY_SERVER)
+
+.PHONY: $(GO_BUILD_TARGETS)
+$(GO_BUILD_TARGETS): | $(BIN_OUTPUT_DIR)
+	$(GO) build -o $(BIN_OUTPUT_DIR) ./cmd/...
+
+# Test
+
+.PHONY: test
+test:
+	$(GO) test -v -race ./...
+
+.PHONY: test-norace
+test-norace:
+	$(GO) test -v ./...
+
+# Run
+
+.PHONY: run-server
+run-server: $(GO_BUILD_TARGET_CELLAY_SERVER)
+	$(BIN_OUTPUT_DIR)/cellay-server
+
+# Cleanup
+
+.PHONY: clean
+clean: clean-proto clean-tools

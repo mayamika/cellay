@@ -3,10 +3,13 @@
 package tools
 
 import (
-	// linter
+	// Codegen
+	_ "github.com/alvaroloes/enumer"
+
+	// Lint
 	_ "github.com/golangci/golangci-lint/cmd/golangci-lint"
 
-	// grpc ecosystem
+	// GRPC ecosystem
 	_ "github.com/bufbuild/buf/cmd/buf"
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway"
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2"
