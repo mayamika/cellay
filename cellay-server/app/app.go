@@ -1,9 +1,13 @@
 package app
 
 import (
+	"fmt"
+	"os"
+
 	"go.uber.org/fx"
 	"google.golang.org/grpc"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/mayamika/cellay/cellay-server/internal/cellay/games"
 	"github.com/mayamika/cellay/cellay-server/internal/cellay/matches"
 	"github.com/mayamika/cellay/cellay-server/internal/gamesstorage"
@@ -39,6 +43,7 @@ func New(config *Config) *fx.App {
 	if config == nil {
 		config = NewDefaultConfig()
 	}
+	fmt.Fprintf(os.Stdout, spew.Sdump(config))
 	return fx.New(
 		fx.Supply(*config),
 		fx.Provide(logger.New),

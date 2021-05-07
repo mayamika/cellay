@@ -61,6 +61,7 @@ func New(p Params) (*Manager, error) {
 	return &Manager{
 		node:    node,
 		storage: p.Storage,
+		matches: make(map[string]*match),
 	}, nil
 }
 
