@@ -37,7 +37,6 @@ const GameList = () => {
     API.get(`games`)
         .then((res) => {
           const data = res.data;
-          console.log(data);
           setGames(data);
         });
   }, []);
@@ -45,7 +44,6 @@ const GameList = () => {
   const classes = useStyles();
 
   function FormRow(props) {
-    console.log(props.row);
     return (
       <Grid container item xs={12} spacing={3}>
         {props.row.map((game, index) => {
@@ -72,7 +70,6 @@ const GameList = () => {
   }
 
   const gameRows = formRows(games.games, 3);
-  console.log(gameRows);
 
   return (
     <div className={classes.root}>

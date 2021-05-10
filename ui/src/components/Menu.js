@@ -51,8 +51,6 @@ export default function Menu() {
   const location = useLocation();
   const [session] = React.useContext(StoreContext);
 
-  console.log(session);
-
   function ContinueButton() {
     if (!session.id) {
       return null;

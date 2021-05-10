@@ -1,0 +1,25 @@
+{
+  "games": [
+    {
+      "id": 1,
+      "name": "tic-tac-toe",
+      "description": "Tic-tac-toe, is a game for two players, X and O, who take turns marking the spaces in a 3×3 grid. The player who succeeds in placing three of their marks in a diagonal, horizontal, or vertical row is the winner."
+    },
+    {
+      "id": 2,
+      "name": "game 2",
+      "description": "Tic-tac-toe, is a game for two players, X and O, who take turns marking the spaces in a 3×3 grid. The player who succeeds in placing three of their marks in a diagonal, horizontal, or vertical row is the winner. Tic-tac-toe, is a game for two players, X and O, who take turns marking the spaces in a 3×3 grid. Tic-tac-toe, is a game for two players, X and O, who take turns marking the spaces in a 3×3 grid. Tic-tac-toe, is a game for two players, X and O, who take turns marking the spaces in a 3×3 grid"
+    },
+    {
+      "id": 3,
+      "name": "game 3",
+      "description": "game 3 description"
+    },
+    {
+      "id": 4,
+      "name": "game 4",
+      "description": "game 4 description"
+    }
+  ],
+  "total": 4
+}

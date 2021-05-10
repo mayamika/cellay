@@ -10,7 +10,10 @@ import Typography from '@material-ui/core/Typography';
 
 import {useHistory} from 'react-router-dom';
 
+import {useAlert} from 'react-alert';
+
 import {StoreContext} from '../store';
+import API from '../api';
 
 const useStyles = (theme) => ({
   root: {
@@ -25,16 +28,27 @@ const useStyles = (theme) => ({
 
 function GameCard(props) {
   const {classes, game} = props;
-  const history = useHistory();
   const [, setSession] = React.useContext(StoreContext);
 
+  const history = useHistory();
+  const alert = useAlert();
+
   function handleClick() {
-    console.log(game.id);
-    setSession({
-      id: game.id,
-      key: 'asdf',
-    });
-    history.push(`/play`);
+    console.log(`GameCard clicked, game id: ${game.id}`);
+
+    API.get(`matches/new/${game.id}`)
+        .then((res) => {
+          const data = res.data;
+          setSession({
+            id: data.session,
+            key: data.key,
+          });
+          console.log(`new match`, data);
+          history.push(`/play`);
+        })
+        .catch((error) => {
+          alert.error('Server returned error!');
+        });
   }
 
   return (

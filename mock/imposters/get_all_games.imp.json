@@ -1,0 +1,15 @@
+[
+    {
+        "request": {
+            "method": "GET",
+            "endpoint": "/api/v1/games"            
+        },
+        "response": {
+            "status": 200,
+            "headers": {
+                "Content-Type": "application/json"
+            },
+            "bodyFile": "get_all_games.json"
+        }
+    }
+]

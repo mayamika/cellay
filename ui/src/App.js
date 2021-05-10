@@ -10,6 +10,8 @@ import {
   Route,
 } from 'react-router-dom';
 
+import {transitions, positions, Provider as AlertProvider} from 'react-alert';
+import AlertTemplate from 'react-alert-template-mui';
 
 import Menu from './components/Menu';
 import GameGallery from './GameGallery';
@@ -31,6 +33,16 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+// optional configuration
+const alertOptions = {
+  // you can also just use 'bottom center'
+  position: positions.BOTTOM_CENTER,
+  timeout: 6000,
+  offset: '30px',
+  // you can also just use 'scale'
+  transition: transitions.SCALE,
+};
+
 function Copyright() {
   return (
     <Typography variant="body2" color="textSecondary" align="center">
@@ -49,22 +61,24 @@ export default function App() {
 
   return (
     <StoreProvider>
-      <Router>
-        <Menu />
-        <Container className={classes.content} maxWidth="lg">
-          <Switch>
-            <Route path="/connect">
-              <ConnectPage />
-            </Route>
-            <Route path="/">
-              <GameGallery />
-            </Route>
-          </Switch>
-        </Container>
-        <Box className={classes.footer}>
-          <Copyright />
-        </Box>
-      </Router>
+      <AlertProvider template={AlertTemplate} {...alertOptions}>
+        <Router>
+          <Menu />
+          <Container className={classes.content} maxWidth="lg">
+            <Switch>
+              <Route path="/connect">
+                <ConnectPage />
+              </Route>
+              <Route path="/">
+                <GameGallery />
+              </Route>
+            </Switch>
+          </Container>
+          <Box className={classes.footer}>
+            <Copyright />
+          </Box>
+        </Router>
+      </AlertProvider>
     </StoreProvider>
   );
 }
