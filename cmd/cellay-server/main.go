@@ -1,7 +1,17 @@
 package main
 
-import "github.com/mayamika/cellay/cellay-server/app"
+import (
+	"fmt"
+	"os"
+
+	"github.com/mayamika/cellay/cellay-server/app"
+)
 
 func main() {
-	app.New(nil).Run()
+	config, err := app.ParseFlagsAndConfig()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%v\n", err)
+		os.Exit(1)
+	}
+	app.New(config).Run()
 }

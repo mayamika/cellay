@@ -18,6 +18,18 @@ type Event struct {
 	Message string `json:",omitempty"`
 }
 
+func (e *Event) IsGameEnd() bool {
+	if e == nil {
+		return false
+	}
+	switch e.Type {
+	case EventTypeWin, EventTypeDraw:
+		return true
+	default:
+		return false
+	}
+}
+
 const (
 	luaEventTypename = "Event"
 )

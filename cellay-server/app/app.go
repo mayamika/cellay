@@ -39,11 +39,16 @@ func NewDefaultConfig() *Config {
 	}
 }
 
+func ParseFlagsAndConfig() (*Config, error) {
+	config := NewDefaultConfig()
+	fmt.Fprint(os.Stdout, spew.Sdump(config))
+	return config, nil
+}
+
 func New(config *Config) *fx.App {
 	if config == nil {
 		config = NewDefaultConfig()
 	}
-	fmt.Fprintf(os.Stdout, spew.Sdump(config))
 	return fx.New(
 		fx.Supply(*config),
 		fx.Provide(logger.New),
@@ -59,9 +64,11 @@ func New(config *Config) *fx.App {
 
 func onStart(
 	_ *grpc.Server,
-	_ *httpserver.Server,
+	httpServer *httpserver.Server,
 	_ *games.Service,
 	_ *matches.Service,
 	_ *gamesstorage.Storage,
+	matchesManager *matchesmanager.Manager,
 ) {
+	httpServer.Handle(`/connect`, matchesManager.WebsocketHandler())
 }
