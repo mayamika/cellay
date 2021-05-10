@@ -1,9 +1,13 @@
 package app
 
 import (
+	"fmt"
+	"os"
+
 	"go.uber.org/fx"
 	"google.golang.org/grpc"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/mayamika/cellay/cellay-server/internal/cellay/games"
 	"github.com/mayamika/cellay/cellay-server/internal/cellay/matches"
 	"github.com/mayamika/cellay/cellay-server/internal/gamesstorage"
@@ -35,6 +39,12 @@ func NewDefaultConfig() *Config {
 	}
 }
 
+func ParseFlagsAndConfig() (*Config, error) {
+	config := NewDefaultConfig()
+	fmt.Fprint(os.Stdout, spew.Sdump(config))
+	return config, nil
+}
+
 func New(config *Config) *fx.App {
 	if config == nil {
 		config = NewDefaultConfig()
@@ -54,9 +64,11 @@ func New(config *Config) *fx.App {
 
 func onStart(
 	_ *grpc.Server,
-	_ *httpserver.Server,
+	httpServer *httpserver.Server,
 	_ *games.Service,
 	_ *matches.Service,
 	_ *gamesstorage.Storage,
+	matchesManager *matchesmanager.Manager,
 ) {
+	httpServer.Handle(`/connect`, matchesManager.WebsocketHandler())
 }
