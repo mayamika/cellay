@@ -2,6 +2,7 @@
   "name": "create-react-app",
   "version": "4.0.0",
   "private": true,
+  "proxy": "http://localhost:3411",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
@@ -11,6 +12,7 @@
   "dependencies": {
     "@material-ui/core": "latest",
     "@material-ui/icons": "^4.11.2",
+    "axios": "^0.21.1",
     "clsx": "latest",
     "react": "latest",
     "react-dom": "latest",

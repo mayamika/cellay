@@ -8,6 +8,9 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 
+import {StoreContext} from '../store';
+
+
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
@@ -32,6 +35,8 @@ const useStyles = makeStyles((theme) => ({
 
 function renderPath(path) {
   switch (path) {
+    case '/play':
+      return 'Play';
     case '/':
       return 'Host Game';
     case '/connect':
@@ -44,7 +49,23 @@ function renderPath(path) {
 export default function Menu() {
   const classes = useStyles();
   const location = useLocation();
+  const [session] = React.useContext(StoreContext);
 
+  console.log(session);
+
+  function ContinueButton() {
+    if (!session.id) {
+      return null;
+    }
+    return (
+      <Button
+        className={classes.navButton}
+        component={RouterLink}
+        to="/play">
+        Continue
+      </Button>
+    );
+  }
   return (
     <div className={classes.root}>
       <AppBar position="static">
@@ -63,6 +84,7 @@ export default function Menu() {
             to="/">
             Host
           </Button>
+          <ContinueButton />
           <Button
             className={classes.navButton}
             component={RouterLink}

@@ -10,9 +10,11 @@ import {
   Route,
 } from 'react-router-dom';
 
+
 import Menu from './components/Menu';
 import GameGallery from './GameGallery';
 import ConnectPage from './Connect';
+import StoreProvider from './store';
 
 const useStyles = makeStyles((theme) => ({
   content: {
@@ -46,21 +48,23 @@ export default function App() {
   const classes = useStyles();
 
   return (
-    <Router>
-      <Menu />
-      <Container className={classes.content} maxWidth="lg">
-        <Switch>
-          <Route path="/connect">
-            <ConnectPage />
-          </Route>
-          <Route path="/">
-            <GameGallery />
-          </Route>
-        </Switch>
-      </Container>
-      <Box className={classes.footer}>
-        <Copyright />
-      </Box>
-    </Router>
+    <StoreProvider>
+      <Router>
+        <Menu />
+        <Container className={classes.content} maxWidth="lg">
+          <Switch>
+            <Route path="/connect">
+              <ConnectPage />
+            </Route>
+            <Route path="/">
+              <GameGallery />
+            </Route>
+          </Switch>
+        </Container>
+        <Box className={classes.footer}>
+          <Copyright />
+        </Box>
+      </Router>
+    </StoreProvider>
   );
 }
