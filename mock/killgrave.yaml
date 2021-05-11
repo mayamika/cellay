@@ -1,0 +1,10 @@
+imposters_path: "imposters"
+port: 3411
+host: "localhost"
+watcher: true
+cors:
+  methods: ["GET"]
+  headers: ["Content-Type"]
+  exposed_headers: ["Cache-Control"]
+  origins: ["*"]
+  allow_credentials: true

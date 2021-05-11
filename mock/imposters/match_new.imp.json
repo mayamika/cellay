@@ -1,0 +1,27 @@
+[
+    {
+        "request": {
+            "method": "GET",
+            "endpoint": "/api/v1/matches/new/1"            
+        },
+        "response": {
+            "status": 200,
+            "headers": {
+                "Content-Type": "application/json"
+            },
+            "bodyFile": "match_new_1.json"
+        }
+    },
+    {
+        "request": {
+            "method": "GET",
+            "endpoint": "/api/v1/matches/new/2"
+        },
+        "response": {
+            "status": 500,
+            "headers": {
+                "Content-Type": "application/json"
+            }
+        }
+    }
+]
