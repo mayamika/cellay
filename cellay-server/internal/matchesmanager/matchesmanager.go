@@ -64,11 +64,12 @@ func New(p Params) (*Manager, error) {
 		return nil, fmt.Errorf("can't create centrifuge node: %w", err)
 	}
 	m := &Manager{
-		logger:    p.Logger.Named("matchesmanager"),
-		node:      node,
-		wsHandler: centrifuge.NewWebsocketHandler(node, centrifuge.WebsocketConfig{}),
-		storage:   p.Storage,
-		matches:   make(map[string]*match),
+		logger:     p.Logger.Named("matchesmanager"),
+		node:       node,
+		wsHandler:  centrifuge.NewWebsocketHandler(node, centrifuge.WebsocketConfig{}),
+		storage:    p.Storage,
+		matches:    make(map[string]*match),
+		playerKeys: make(map[string]string),
 	}
 	node.OnConnecting(m.onConnecting)
 	node.OnConnect(m.onConnect)
