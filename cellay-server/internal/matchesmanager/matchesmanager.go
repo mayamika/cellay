@@ -2,6 +2,7 @@ package matchesmanager
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -22,6 +23,7 @@ var (
 )
 
 type Manager struct {
+	logger    *zap.Logger
 	node      *centrifuge.Node
 	wsHandler http.Handler
 	storage   *gamesstorage.Storage
@@ -33,6 +35,19 @@ type Manager struct {
 
 type MatchInfo struct {
 	GameID int32
+}
+
+const (
+	actionTypeClick = "click"
+	actionTypeMove  = "move"
+)
+
+type actionMessage struct {
+	Type     string
+	X, Y     int
+	From, To struct {
+		X, Y int
+	}
 }
 
 type Params struct {
@@ -49,6 +64,7 @@ func New(p Params) (*Manager, error) {
 		return nil, fmt.Errorf("can't create centrifuge node: %w", err)
 	}
 	m := &Manager{
+		logger:    p.Logger.Named("matchesmanager"),
 		node:      node,
 		wsHandler: centrifuge.NewWebsocketHandler(node, centrifuge.WebsocketConfig{}),
 		storage:   p.Storage,
@@ -111,6 +127,7 @@ func (m *Manager) StartMatch(ctx context.Context, gameID int32) (string, error) 
 	return session, nil
 }
 
+//nolint:gocritic // Centrifuge handler
 func (m *Manager) onConnecting(
 	ctx context.Context,
 	event centrifuge.ConnectEvent,
@@ -125,17 +142,91 @@ func (m *Manager) onConnecting(
 func (m *Manager) onConnect(client *centrifuge.Client) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	session := m.playerKeys[client.UserID()]
-	player := m.matches[session].checkPlayerKey(client.UserID())
+	var (
+		session = m.playerKeys[client.UserID()]
+		logger  = m.logger.With(
+			zap.String("session", session),
+			zap.String("user_id", client.UserID()),
+		)
+	)
+	ma, matchExists := m.matches[session]
+	if !matchExists {
+		client.Disconnect(centrifuge.DisconnectBadRequest)
+		return
+	}
+	player := ma.checkPlayerKey(client.UserID())
 	if player == 0 {
 		client.Disconnect(centrifuge.DisconnectBadRequest)
 		return
 	}
-	client.OnMessage(func(me centrifuge.MessageEvent) {
-	})
+	client.OnMessage(m.newMessageHandler(logger, ma, session, player))
 	if err := client.Subscribe(session); err != nil {
-		client.Disconnect(centrifuge.DisconnectBadRequest)
+		logger.Debug("subscribe failed", zap.Error(err))
+		client.Disconnect(centrifuge.DisconnectServerError)
 	}
+}
+
+func (m *Manager) newMessageHandler(
+	logger *zap.Logger,
+	ma *match,
+	session string,
+	player int,
+) centrifuge.MessageHandler {
+	return func(me centrifuge.MessageEvent) {
+		var message actionMessage
+		if err := json.Unmarshal(me.Data, &message); err != nil {
+			logger.Debug("message unmarshal failed", zap.Error(err))
+			return
+		}
+		logger.Debug("received message", zap.Any("message", message))
+		switch message.Type {
+		case actionTypeClick:
+			state, err := ma.game.HandleClick(&game.Click{
+				Coords: game.Coords{
+					X: message.X,
+					Y: message.Y,
+				},
+				Player: player,
+			})
+			if err != nil {
+				logger.Debug("handle click failed", zap.Error(err))
+				return
+			}
+			if event := state.Event; event.IsGameEnd() {
+				m.stopMatch(session)
+			}
+			data, err := json.Marshal(state)
+			if err != nil {
+				logger.Debug("marshal state failed", zap.Error(err))
+				return
+			}
+			if _, err := m.node.Publish(session, data); err != nil {
+				logger.Debug("publish new state failed", zap.Error(err))
+				return
+			}
+		case actionTypeMove:
+			logger.Debug("received message with unsupported action type",
+				zap.String("move", message.Type),
+			)
+		default:
+			logger.Debug("received message with unknown action type",
+				zap.String("action", message.Type),
+			)
+		}
+	}
+}
+
+func (m *Manager) stopMatch(session string) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	ma, exists := m.matches[session]
+	if !exists {
+		return
+	}
+	for _, key := range ma.keys {
+		delete(m.playerKeys, key)
+	}
+	delete(m.matches, session)
 }
 
 func (m *Manager) generateMatchSession(ctx context.Context) (string, error) {

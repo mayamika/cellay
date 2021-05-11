@@ -20,7 +20,6 @@ func (m *match) newPlayerKey() (string, bool) {
 	return key, true
 }
 
-//nolint:unused // Not implemented
 func (m *match) checkPlayerKey(key string) int {
 	for idx, playerKey := range m.keys {
 		if key == playerKey {
