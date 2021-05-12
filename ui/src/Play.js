@@ -10,6 +10,13 @@ import {withAlert} from 'react-alert';
 
 import Centrifuge from 'centrifuge';
 
+const isSecure = (window.location.protocol === 'https:' ||
+  process.env.HTTPS === 'true');
+const protocol = isSecure ? 'wss' : 'ws';
+const host = process.env.HOST || window.location.hostname;
+const port = process.env.PORT || window.location.port;
+const centrifugeURL = `${protocol}://${host}:${port}/connection/websocket`;
+
 class PlayPage extends React.Component {
   constructor(props) {
     super(props);
@@ -21,7 +28,14 @@ class PlayPage extends React.Component {
     const [session] = this.context;
     const alert = this.props.alert;
     const connect = () => {
-      const centrifuge = new Centrifuge('ws://localhost:8080/connection/websocket');
+      console.log('connect');
+      const centrifuge = new Centrifuge(
+          centrifugeURL,
+          {
+            sockjsTransports: ['websocket'],
+            debug: true,
+          },
+      );
       // centrifuge.setToken(session.key);
       centrifuge.subscribe(session.id, (message) => {
         console.log(message);
