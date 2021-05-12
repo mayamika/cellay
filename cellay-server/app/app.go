@@ -71,5 +71,4 @@ func onStart(
 	matchesManager *matchesmanager.Manager,
 ) {
 	httpServer.Handle(`/connection/websocket`, matchesManager.WebsocketHandler())
-	fmt.Printf("%+v", matchesManager.WebsocketHandler())
 }

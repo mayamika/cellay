@@ -45,21 +45,11 @@ func New(p Params) *Server { //nolint: gocritic
 		s      = &Server{
 			logger: logger,
 			mux:    http.NewServeMux(),
-			cors: cors.New(cors.Options{
-				AllowedMethods: []string{
-					http.MethodGet,
-					http.MethodPost,
-					http.MethodPut,
-					http.MethodHead,
-					http.MethodDelete,
-					http.MethodPatch,
-					http.MethodOptions,
-				},
-			}),
+			cors:   newCors(),
 		}
 		httpServer = &http.Server{
 			Addr:    p.Config.Addr,
-			Handler: s.mux,
+			Handler: withLogging(logger, s.mux),
 		}
 	)
 	p.LC.Append(fx.Hook{
@@ -100,22 +90,37 @@ func New(p Params) *Server { //nolint: gocritic
 }
 
 func (s *Server) Handle(path string, handler http.Handler) {
-	s.mux.Handle(path, withLogging(s.logger, s.cors.Handler(handler)))
+	s.mux.Handle(path, s.cors.Handler(handler))
 }
 
 func (s *Server) RegisterService(funcs ...ServiceRegisterFunc) {
 	s.serviceRegisterFuncs = append(s.serviceRegisterFuncs, funcs...)
 }
 
-func withLogging(logger *zap.Logger, h http.Handler) http.Handler {
-	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+func newCors() *cors.Cors {
+	return cors.New(cors.Options{
+		AllowedMethods: []string{
+			http.MethodGet,
+			http.MethodPost,
+			http.MethodPut,
+			http.MethodHead,
+			http.MethodDelete,
+			http.MethodPatch,
+			http.MethodOptions,
+		},
+	})
+}
+
+func withLogging(logger *zap.Logger, h http.Handler) http.HandlerFunc {
+	return func(rw http.ResponseWriter, r *http.Request) {
 		logger.Debug("request",
-			zap.String("method", r.Method),
 			zap.String("host", r.URL.Host),
+			zap.String("method", r.Method),
 			zap.String("scheme", r.URL.Scheme),
-			zap.String("request_uri", r.RequestURI),
-			zap.String("remote_addr", r.RemoteAddr),
+			zap.String("path", r.URL.Path),
+			zap.String("query", r.URL.Query().Encode()),
+			zap.String("remote", r.RemoteAddr),
 		)
 		h.ServeHTTP(rw, r)
-	})
+	}
 }
