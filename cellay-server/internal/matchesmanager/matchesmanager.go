@@ -97,25 +97,27 @@ func (m *Manager) WebsocketHandler() http.Handler {
 func (m *Manager) NewPlayerKey(session string) (string, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	if ma, ok := m.matches[session]; ok {
-		key, keyOk := ma.newPlayerKey()
-		if !keyOk {
-			return "", ErrAllKeysGiven
-		}
-		return key, nil
+	ma, ok := m.matches[session]
+	if !ok {
+		return "", ErrMatchNotFound
 	}
-	return "", ErrMatchNotFound
+	key, keyOk := ma.newPlayerKey()
+	if !keyOk {
+		return "", ErrAllKeysGiven
+	}
+	return key, nil
 }
 
 func (m *Manager) MatchInfo(session string) (*MatchInfo, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	if ma, ok := m.matches[session]; ok {
-		return &MatchInfo{
-			GameID: ma.gameID,
-		}, nil
+	ma, ok := m.matches[session]
+	if !ok {
+		return nil, ErrMatchNotFound
 	}
-	return nil, ErrMatchNotFound
+	return &MatchInfo{
+		GameID: ma.gameID,
+	}, nil
 }
 
 func (m *Manager) StartMatch(ctx context.Context, gameID int32) (string, error) {
@@ -126,6 +128,15 @@ func (m *Manager) StartMatch(ctx context.Context, gameID int32) (string, error) 
 		return "", fmt.Errorf("can't create new match: %w", err)
 	}
 	return session, nil
+}
+
+func (m *Manager) publishState(session string, state *game.State) error {
+	data, err := json.Marshal(state)
+	if err != nil {
+		return fmt.Errorf("can't marshal state: %w", err)
+	}
+	_, err = m.node.Publish(session, data)
+	return err
 }
 
 //nolint:gocritic // Centrifuge handler
@@ -154,7 +165,7 @@ func (m *Manager) onConnect(client *centrifuge.Client) {
 		session = m.playerSessions[client.UserID()]
 		logger  = m.logger.With(
 			zap.String("session", session),
-			zap.String("user_id", key),
+			zap.String("key", key),
 		)
 	)
 	ma, matchExists := m.matches[session]
@@ -167,24 +178,21 @@ func (m *Manager) onConnect(client *centrifuge.Client) {
 		client.Disconnect(centrifuge.DisconnectBadRequest)
 		return
 	}
-	client.OnMessage(m.newMessageHandler(logger, ma, session, player))
-	state := ma.game.State()
-	data, err := json.Marshal(state)
-	if err != nil {
-		logger.Debug("failed to marshal initial state", zap.Error(err))
-		return
-	}
-	if _, err := m.node.Publish(session, data); err != nil {
-		logger.Debug("failed to publish initial state", zap.Error(err))
+	client.OnMessage(m.newMessageHandler(ma, session, player))
+	if err := m.publishState(session, ma.game.State()); err != nil {
+		logger.Debug("failed to publish state on player connect", zap.Error(err))
 	}
 }
 
 func (m *Manager) newMessageHandler(
-	logger *zap.Logger,
 	ma *match,
 	session string,
 	player int,
 ) centrifuge.MessageHandler {
+	logger := m.logger.With(
+		zap.String("session", session),
+		zap.Int("player", player),
+	)
 	return func(me centrifuge.MessageEvent) {
 		var message actionMessage
 		if err := json.Unmarshal(me.Data, &message); err != nil {
@@ -208,14 +216,8 @@ func (m *Manager) newMessageHandler(
 			if event := state.Event; event.IsGameEnd() {
 				m.stopMatch(session)
 			}
-			data, err := json.Marshal(state)
-			if err != nil {
-				logger.Debug("marshal state failed", zap.Error(err))
-				return
-			}
-			if _, err := m.node.Publish(session, data); err != nil {
-				logger.Debug("publish new state failed", zap.Error(err))
-				return
+			if err := m.publishState(session, state); err != nil {
+				m.logger.Debug("failed to publish game state", zap.Error(err))
 			}
 		case actionTypeMove:
 			logger.Debug("received message with unsupported action type",
@@ -227,19 +229,6 @@ func (m *Manager) newMessageHandler(
 			)
 		}
 	}
-}
-
-func (m *Manager) stopMatch(session string) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	ma, exists := m.matches[session]
-	if !exists {
-		return
-	}
-	for _, key := range ma.keys {
-		delete(m.playerSessions, key)
-	}
-	delete(m.matches, session)
 }
 
 func (m *Manager) generateMatchSession(ctx context.Context) (string, error) {
@@ -320,4 +309,17 @@ func (m *Manager) newMatch(ctx context.Context, gameID int32) (string, error) {
 		m.playerSessions[key] = session
 	}
 	return session, nil
+}
+
+func (m *Manager) stopMatch(session string) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	ma, exists := m.matches[session]
+	if !exists {
+		return
+	}
+	for _, key := range ma.keys {
+		delete(m.playerSessions, key)
+	}
+	delete(m.matches, session)
 }
