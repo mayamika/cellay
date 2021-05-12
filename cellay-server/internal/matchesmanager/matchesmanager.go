@@ -66,7 +66,7 @@ func New(p Params) (*Manager, error) {
 	m := &Manager{
 		logger:         p.Logger.Named("matchesmanager"),
 		node:           node,
-		wsHandler:      centrifuge.NewWebsocketHandler(node, centrifuge.WebsocketConfig{}),
+		wsHandler:      centrifuge.NewWebsocketHandler(node, newWebsocketConfig()),
 		storage:        p.Storage,
 		matches:        make(map[string]*match),
 		playerSessions: make(map[string]string),
@@ -128,6 +128,14 @@ func (m *Manager) StartMatch(ctx context.Context, gameID int32) (string, error) 
 		return "", fmt.Errorf("can't create new match: %w", err)
 	}
 	return session, nil
+}
+
+func newWebsocketConfig() centrifuge.WebsocketConfig {
+	return centrifuge.WebsocketConfig{
+		CheckOrigin: func(r *http.Request) bool {
+			return true
+		},
+	}
 }
 
 func (m *Manager) publishState(session string, state *game.State) error {
