@@ -16,6 +16,7 @@ import AlertTemplate from 'react-alert-template-mui';
 import Menu from './components/Menu';
 import GameGallery from './GameGallery';
 import ConnectPage from './Connect';
+import PlayPage from './Play';
 import StoreProvider from './store';
 
 const useStyles = makeStyles((theme) => ({
@@ -68,6 +69,9 @@ export default function App() {
             <Switch>
               <Route path="/connect">
                 <ConnectPage />
+              </Route>
+              <Route path="/play">
+                <PlayPage />
               </Route>
               <Route path="/">
                 <GameGallery />

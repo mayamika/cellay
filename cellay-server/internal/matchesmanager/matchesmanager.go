@@ -28,9 +28,9 @@ type Manager struct {
 	wsHandler http.Handler
 	storage   *gamesstorage.Storage
 
-	mu         sync.RWMutex
-	matches    map[string]*match
-	playerKeys map[string]string
+	mu             sync.RWMutex
+	matches        map[string]*match
+	playerSessions map[string]string
 }
 
 type MatchInfo struct {
@@ -64,12 +64,12 @@ func New(p Params) (*Manager, error) {
 		return nil, fmt.Errorf("can't create centrifuge node: %w", err)
 	}
 	m := &Manager{
-		logger:     p.Logger.Named("matchesmanager"),
-		node:       node,
-		wsHandler:  centrifuge.NewWebsocketHandler(node, centrifuge.WebsocketConfig{}),
-		storage:    p.Storage,
-		matches:    make(map[string]*match),
-		playerKeys: make(map[string]string),
+		logger:         p.Logger.Named("matchesmanager"),
+		node:           node,
+		wsHandler:      centrifuge.NewWebsocketHandler(node, centrifuge.WebsocketConfig{}),
+		storage:        p.Storage,
+		matches:        make(map[string]*match),
+		playerSessions: make(map[string]string),
 	}
 	node.OnConnecting(m.onConnecting)
 	node.OnConnect(m.onConnect)
@@ -133,9 +133,15 @@ func (m *Manager) onConnecting(
 	ctx context.Context,
 	event centrifuge.ConnectEvent,
 ) (centrifuge.ConnectReply, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	m.logger.Debug("connecting", zap.String("token", event.Token))
+	if _, exists := m.playerSessions[event.Token]; !exists {
+		return centrifuge.ConnectReply{}, centrifuge.DisconnectInvalidToken
+	}
 	return centrifuge.ConnectReply{
 		Credentials: &centrifuge.Credentials{
-			UserID: "awd",
+			UserID: event.Token,
 		},
 	}, nil
 }
@@ -144,10 +150,11 @@ func (m *Manager) onConnect(client *centrifuge.Client) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	var (
-		session = m.playerKeys[client.UserID()]
+		key     = client.UserID()
+		session = m.playerSessions[client.UserID()]
 		logger  = m.logger.With(
 			zap.String("session", session),
-			zap.String("user_id", client.UserID()),
+			zap.String("user_id", key),
 		)
 	)
 	ma, matchExists := m.matches[session]
@@ -155,15 +162,20 @@ func (m *Manager) onConnect(client *centrifuge.Client) {
 		client.Disconnect(centrifuge.DisconnectBadRequest)
 		return
 	}
-	player := ma.checkPlayerKey(client.UserID())
+	player := ma.checkPlayerKey(key)
 	if player == 0 {
 		client.Disconnect(centrifuge.DisconnectBadRequest)
 		return
 	}
 	client.OnMessage(m.newMessageHandler(logger, ma, session, player))
-	if err := client.Subscribe(session); err != nil {
-		logger.Debug("subscribe failed", zap.Error(err))
-		client.Disconnect(centrifuge.DisconnectServerError)
+	state := ma.game.State()
+	data, err := json.Marshal(state)
+	if err != nil {
+		logger.Debug("failed to marshal initial state", zap.Error(err))
+		return
+	}
+	if _, err := m.node.Publish(session, data); err != nil {
+		logger.Debug("failed to publish initial state", zap.Error(err))
 	}
 }
 
@@ -225,7 +237,7 @@ func (m *Manager) stopMatch(session string) {
 		return
 	}
 	for _, key := range ma.keys {
-		delete(m.playerKeys, key)
+		delete(m.playerSessions, key)
 	}
 	delete(m.matches, session)
 }
@@ -249,7 +261,7 @@ func (m *Manager) generatePlayerKeys(ctx context.Context, players int) ([]string
 			return nil, err
 		}
 		key := token.New()
-		if _, exists := m.playerKeys[key]; !exists {
+		if _, exists := m.playerSessions[key]; !exists {
 			newKeys[key] = struct{}{}
 		}
 		if len(newKeys) == players {
@@ -305,7 +317,7 @@ func (m *Manager) newMatch(ctx context.Context, gameID int32) (string, error) {
 		keys:   keys,
 	}
 	for _, key := range keys {
-		m.playerKeys[key] = session
+		m.playerSessions[key] = session
 	}
 	return session, nil
 }
