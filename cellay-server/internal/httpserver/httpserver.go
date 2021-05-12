@@ -18,6 +18,7 @@ import (
 type ServiceRegisterFunc func(ctx context.Context, gwMux *runtime.ServeMux, conn *grpc.ClientConn) error
 
 type Server struct {
+	logger               *zap.Logger
 	mux                  *http.ServeMux
 	cors                 *cors.Cors
 	grpcClient           *grpc.ClientConn
@@ -42,7 +43,8 @@ func New(p Params) *Server { //nolint: gocritic
 	var (
 		logger = p.Logger.Named("http")
 		s      = &Server{
-			mux: http.NewServeMux(),
+			logger: logger,
+			mux:    http.NewServeMux(),
 			cors: cors.New(cors.Options{
 				AllowedMethods: []string{
 					http.MethodGet,
@@ -98,9 +100,22 @@ func New(p Params) *Server { //nolint: gocritic
 }
 
 func (s *Server) Handle(path string, handler http.Handler) {
-	s.mux.Handle(path, s.cors.Handler(handler))
+	s.mux.Handle(path, withLogging(s.logger, s.cors.Handler(handler)))
 }
 
 func (s *Server) RegisterService(funcs ...ServiceRegisterFunc) {
 	s.serviceRegisterFuncs = append(s.serviceRegisterFuncs, funcs...)
+}
+
+func withLogging(logger *zap.Logger, h http.Handler) http.Handler {
+	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+		logger.Debug("request",
+			zap.String("method", r.Method),
+			zap.String("host", r.URL.Host),
+			zap.String("scheme", r.URL.Scheme),
+			zap.String("request_uri", r.RequestURI),
+			zap.String("remote_addr", r.RemoteAddr),
+		)
+		h.ServeHTTP(rw, r)
+	})
 }
