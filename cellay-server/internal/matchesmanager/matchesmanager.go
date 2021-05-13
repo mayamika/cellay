@@ -300,6 +300,9 @@ func (m *Manager) newMatch(ctx context.Context, gameID int32) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("can't create game: %w", err)
 	}
+	if _, err := g.Start(); err != nil {
+		return "", fmt.Errorf("can't initialize game state: %w", err)
+	}
 	session, err := m.generateMatchSession(ctx)
 	if err != nil {
 		return "", fmt.Errorf("can't generate match session: %w", err)
