@@ -187,9 +187,16 @@ func (m *Manager) onConnect(client *centrifuge.Client) {
 		return
 	}
 	client.OnMessage(m.newMessageHandler(ma, session, player))
-	if err := m.publishState(session, ma.game.State()); err != nil {
-		logger.Debug("failed to publish state on player connect", zap.Error(err))
-	}
+	client.OnSubscribe(func(se centrifuge.SubscribeEvent, sc centrifuge.SubscribeCallback) {
+		if se.Channel != session {
+			sc(centrifuge.SubscribeReply{}, centrifuge.ErrorBadRequest)
+			return
+		}
+		sc(centrifuge.SubscribeReply{}, nil)
+		if err := m.publishState(session, ma.game.State()); err != nil {
+			logger.Debug("failed to publish state on player connect", zap.Error(err))
+		}
+	})
 }
 
 func (m *Manager) newMessageHandler(
