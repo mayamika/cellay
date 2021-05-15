@@ -59,7 +59,7 @@ func (s *Service) Info(
 ) (*cellayv1.MatchesServiceInfoResponse, error) {
 	info, err := s.manager.MatchInfo(req.GetSession())
 	if err != nil {
-		return nil, errInternalf("can't get match info: %v", err)
+		return nil, status.Errorf(codes.NotFound, "can't get match info: %v", err)
 	}
 	res := &cellayv1.MatchesServiceInfoResponse{
 		GameId: info.GameID,

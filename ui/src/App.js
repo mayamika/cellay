@@ -16,7 +16,7 @@ import AlertTemplate from 'react-alert-template-mui';
 import Menu from './components/Menu';
 import GameGallery from './GameGallery';
 import ConnectPage from './Connect';
-import PlayPage from './Play';
+import GameContainer from './Play';
 import StoreProvider from './store';
 
 const useStyles = makeStyles((theme) => ({
@@ -71,7 +71,7 @@ export default function App() {
                 <ConnectPage />
               </Route>
               <Route path="/play">
-                <PlayPage />
+                <GameContainer />
               </Route>
               <Route path="/">
                 <GameGallery />

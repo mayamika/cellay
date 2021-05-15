@@ -1,12 +1,20 @@
 import React from 'react';
 import Box from '@material-ui/core/Box';
-import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
-import {Stage, Layer} from 'react-konva';
 
-import API from './api';
+import {Stage, Layer, Text} from 'react-konva';
+
+import {useHistory} from 'react-router-dom';
+import {useAlert} from 'react-alert';
+
 import {StoreContext} from './store';
-import {withAlert} from 'react-alert';
+import API from './api';
+
+/*
+import {Stage, Layer} from 'react-konva';
+import Paper from '@material-ui/core/Paper';
+
+import {StoreContext} from './store';
 
 import Centrifuge from 'centrifuge';
 
@@ -92,5 +100,96 @@ class PlayPage extends React.Component {
     );
   }
 }
+*/
 
-export default withAlert()(PlayPage);
+/* state?
+ * {
+ *   assets: {},
+ *   gameState: {},
+ *
+ * }
+ *
+ */
+
+function alertReturnHome(history, alert, msg) {
+  alert.error(msg, {
+    onClose: () => {
+      history.push('/');
+    },
+  });
+}
+
+function resetSession(setSession) {
+  setSession({
+    key: null,
+    id: null,
+  });
+}
+
+function transformAssets(raw) {
+  console.log(JSON.stringify(raw));
+  return raw;
+}
+
+
+export default function GameContainer(props) {
+  const history = useHistory();
+  const alert = useAlert();
+  const [session, setSession] = React.useContext(StoreContext);
+
+  const [assets, setAssets] = React.useState(null);
+
+  function loadAssets(gameId) {
+    API.get(`games/${gameId}/assets`)
+        .then((res) => {
+          const data = res.data;
+          setAssets(transformAssets(data));
+        })
+        .catch((error) => {
+          resetSession(setSession);
+          alertReturnHome(history, alert, 'Assets unavailable');
+        });
+  };
+  // Reset session on exit
+  React.useEffect(() => {
+    if (!session.id) {
+      alertReturnHome(history, alert, 'No session found');
+    }
+    API.get(`matches/info/${session.id}`)
+        .then((res) => {
+          loadAssets(res.data.gameId);
+        })
+        .catch((error) => {
+          resetSession(setSession);
+          alertReturnHome(history, alert, 'Session does not exists');
+        });
+  }, []);
+
+  return (
+    <Box my={4}>
+      <Typography variant='h4' component='h1' gutterBottom>
+            Play with another player
+      </Typography>
+      <GameCanvas assets={assets} session={session}/>
+    </Box>
+  );
+}
+
+function GameCanvas(props) {
+  if (!props.assets) {
+    return (
+      <Stage width={window.innerWidth} height={window.innerHeight}>
+        <Layer>
+          <Text text="Loading assets..." fontSize={25} />
+        </Layer>
+      </Stage>
+    );
+  }
+  return (
+    <Stage width={window.innerWidth} height={window.innerHeight}>
+      <Layer>
+        <Text text="Loaded" fontSize={25} />
+      </Layer>
+    </Stage>
+  );
+}
