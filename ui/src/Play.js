@@ -10,6 +10,7 @@ import {useAlert} from 'react-alert';
 
 import {StoreContext} from './store';
 import API from './api';
+import WS from './ws';
 
 
 /* state?
@@ -132,6 +133,7 @@ function getWidthHeight(aspect) {
 }
 
 function GameCanvas(props) {
+  const session = props.session;
   const assets = transformAssets(props.assets);
 
   const aspect = assets.width / assets.height;
@@ -145,7 +147,16 @@ function GameCanvas(props) {
   }, []);
 
   React.useEffect(() => {
+    const ws = new WS(session.key);
 
+    const channel = ws.subscribe(session.id, (message) => {
+      console.log(message);
+    });
+
+    return () => {
+      channel.unsubscribe();
+      ws.disconnect();
+    };
   }, []);
 
 
