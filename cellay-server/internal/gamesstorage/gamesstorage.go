@@ -67,6 +67,12 @@ type GameAssetsField struct {
 	Cols int32
 }
 
+type GameAssetsTexture struct {
+	Width   int32
+	Height  int32
+	Texture []byte
+}
+
 type GameAssetsLayer struct {
 	Width   int32
 	Height  int32
@@ -75,9 +81,10 @@ type GameAssetsLayer struct {
 }
 
 type GameAssets struct {
-	ID     int32
-	Field  GameAssetsField `genji:"game_field"`
-	Layers map[string]*GameAssetsLayer
+	ID         int32
+	Field      GameAssetsField `genji:"game_field"`
+	Background GameAssetsTexture
+	Layers     map[string]*GameAssetsLayer
 }
 
 type Game struct {
@@ -85,6 +92,7 @@ type Game struct {
 	Description string
 	Code        string
 	Field       GameAssetsField `genji:"game_field"`
+	Background  GameAssetsTexture
 	Layers      map[string]*GameAssetsLayer
 }
 
@@ -116,7 +124,7 @@ func (s *Storage) GameCode(ctx context.Context, id int32) (*GameCode, error) {
 
 func (s *Storage) GameAssets(ctx context.Context, id int32) (*GameAssets, error) {
 	db := s.db.WithContext(ctx)
-	res, err := db.QueryDocument(`SELECT pk(), game_field, layers FROM games WHERE pk() = ?`, id)
+	res, err := db.QueryDocument(`SELECT pk(), game_field, background, layers FROM games WHERE pk() = ?`, id)
 	if err != nil {
 		return nil, fmt.Errorf("query document failed: %w", err)
 	}

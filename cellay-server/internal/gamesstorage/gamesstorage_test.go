@@ -54,9 +54,10 @@ func testInsertGet(t *testing.T, s *Storage) {
 	assets, err := s.GameAssets(ctx, 1)
 	r.NoError(err)
 	r.Equal(&GameAssets{
-		ID:     1,
-		Field:  firstGame.Field,
-		Layers: firstGame.Layers,
+		ID:         1,
+		Field:      firstGame.Field,
+		Layers:     firstGame.Layers,
+		Background: firstGame.Background,
 	}, assets)
 }
 
@@ -105,6 +106,11 @@ func newTestGame(equivalence int) *Game {
 				Depth:   int32(equivalence),
 				Texture: []byte(fmt.Sprint(equivalence)),
 			},
+		},
+		Background: GameAssetsTexture{
+			Width:   int32(equivalence),
+			Height:  int32(equivalence),
+			Texture: []byte(fmt.Sprint(equivalence)),
 		},
 	}
 }
