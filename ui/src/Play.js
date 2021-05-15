@@ -1,8 +1,9 @@
 import React from 'react';
 import Box from '@material-ui/core/Box';
+import Container from '@material-ui/core/Container';
 import Typography from '@material-ui/core/Typography';
 
-import {Stage, Layer, Text} from 'react-konva';
+import {Stage, Layer, Image} from 'react-konva';
 
 import {useHistory} from 'react-router-dom';
 import {useAlert} from 'react-alert';
@@ -126,9 +127,23 @@ function resetSession(setSession) {
   });
 }
 
+function importImage(data) {
+  const image = new window.Image();
+  image.src = 'data:image/png;base64,' + data;
+  return image;
+}
+
 function transformAssets(raw) {
-  console.log(JSON.stringify(raw));
-  return raw;
+  const assets = {};
+  if (raw.background.texture) {
+    assets.background = importImage(raw.background.texture);
+    assets.width = assets.background.width;
+    assets.height = assets.background.height;
+  } else {
+    assets.width = raw.background.width;
+    assets.height = raw.background.height;
+  }
+  return assets;
 }
 
 
@@ -143,7 +158,7 @@ export default function GameContainer(props) {
     API.get(`games/${gameId}/assets`)
         .then((res) => {
           const data = res.data;
-          setAssets(transformAssets(data));
+          setAssets(data);
         })
         .catch((error) => {
           resetSession(setSession);
@@ -165,30 +180,74 @@ export default function GameContainer(props) {
         });
   }, []);
 
+  function GameBox(props) {
+    if (!assets) {
+      return (
+        <Typography variant='h5' component='h1' gutterBottom>
+              Loading
+        </Typography>
+      );
+    }
+    return (
+      <Box display='flex' justifyContent='center'>
+        <GameCanvas assets={assets} session={session} />
+      </Box>
+    );
+  }
+
   return (
     <Box my={4}>
       <Typography variant='h4' component='h1' gutterBottom>
             Play with another player
       </Typography>
-      <GameCanvas assets={assets} session={session}/>
+      <Container maxWidth='sm'>
+        <GameBox />
+      </Container>
     </Box>
   );
 }
 
-function GameCanvas(props) {
-  if (!props.assets) {
-    return (
-      <Stage width={window.innerWidth} height={window.innerHeight}>
-        <Layer>
-          <Text text="Loading assets..." fontSize={25} />
-        </Layer>
-      </Stage>
-    );
+function getWidthHeight(aspect) {
+  const width = window.innerWidth * 0.8;
+  const height = window.innerHeight * 0.8;
+  if (height < width) {
+    return {
+      width: height * aspect,
+      height: height,
+    };
   }
+  return {
+    width: width,
+    height: width / aspect,
+  };
+}
+
+function GameCanvas(props) {
+  const assets = transformAssets(props.assets);
+
+  const aspect = assets.width / assets.height;
+  console.log(aspect);
+
+  const [canvasSize, setCanvasSize] = React.useState(getWidthHeight(aspect));
+
+  React.useEffect(() => {
+    const handleResize = (e) => {
+      setCanvasSize(getWidthHeight(aspect));
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+
   return (
-    <Stage width={window.innerWidth} height={window.innerHeight}>
+    <Stage width={canvasSize.width} height={canvasSize.height}
+      scaleX={canvasSize.width / assets.width}
+      scaleY={canvasSize.height / assets.height}>
       <Layer>
-        <Text text="Loaded" fontSize={25} />
+        <Image
+          image={assets.background}
+        />
       </Layer>
     </Stage>
   );
