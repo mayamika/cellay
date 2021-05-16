@@ -11,16 +11,8 @@ import {useAlert} from 'react-alert';
 import {StoreContext} from './store';
 import API from './api';
 import WS from './ws';
+import CopyTooltip from './components/CopyTooltip';
 
-
-/* state?
- * {
- *   assets: {},
- *   gameState: {},
- *
- * }
- *
- */
 
 function alertReturnHome(history, alert, msg) {
   alert.error(msg, {
@@ -37,14 +29,6 @@ function resetSession(setSession) {
   });
 }
 
-/*
-function importImage(data) {
-  const image = new window.Image();
-  image.src = 'data:image/png;base64,' + data;
-  return image;
-}
-*/
-
 function loadImage(data) {
   return new Promise((resolve, reject) => {
     const img = new window.Image();
@@ -55,13 +39,17 @@ function loadImage(data) {
 }
 
 class TileLayer {
-  constructor(rawLayer, image) {
+  constructor(rawLayer, field, image) {
     this.image = image;
-    this.width = rawLayer.width;
-    this.height = rawLayer.height;
+    this.tileRealWidth = rawLayer.width;
+    this.tileRealHeight = rawLayer.height;
     this.depth = rawLayer.depth;
-    this.cols = Math.floor(this.image.width / this.width);
-    this.rows = Math.floor(this.image.height / this.height);
+    this.cols = Math.floor(this.image.width / this.tileRealWidth);
+    this.rows = Math.floor(this.image.height / this.tileRealHeight);
+    this.tileWidth = field.cellWidth;
+    this.tileHeight = field.cellHeight;
+    this.scaleX = this.tileWidth / this.tileRealWidth;
+    this.scaleY = this.tileHeight / this.tileRealHeight;
   }
 
   tile(index, x, y) {
@@ -72,15 +60,15 @@ class TileLayer {
     }
     const props = {
       image: this.image,
-      x: x * this.width,
-      y: y * this.height,
-      width: this.width,
-      height: this.height,
+      x: x * this.tileWidth,
+      y: y * this.tileHeight,
+      width: this.tileWidth,
+      height: this.tileHeight,
       crop: {
-        x: col * this.width,
-        y: row * this.height,
-        width: this.width,
-        height: this.height,
+        x: col * this.tileRealWidth,
+        y: row * this.tileRealHeight,
+        width: this.tileRealWidth,
+        height: this.tileRealHeight,
       },
     };
     return props;
@@ -90,21 +78,21 @@ class TileLayer {
 function transformAssets(raw) {
   const assets = {};
   const promises = [];
+  assets.rows = raw.field.rows;
+  assets.cols = raw.field.cols;
   if (raw.background.texture) {
     promises.push(
         loadImage(raw.background.texture).then(
-            (image) => {
-              assets.background = image;
-              assets.width = image.width;
-              assets.height = image.height;
-            },
+            (image) => assets.background = image,
         ),
     );
-  } else {
-    assets.width = raw.background.width;
-    assets.height = raw.background.height;
   }
+  assets.width = raw.background.width;
+  assets.height = raw.background.height;
+  assets.cellWidth = assets.width / assets.cols;
+  assets.cellHeight = assets.height / assets.rows;
   assets.layers = {};
+  const order = [];
   for (const name in raw.layers) {
     if (!Object.prototype.hasOwnProperty.call(raw.layers, name)) {
       continue;
@@ -115,10 +103,16 @@ function transformAssets(raw) {
     }
     promises.push(
         loadImage(layer.texture).then(
-            (image) => assets.layers[name] = new TileLayer(layer, image),
+            (image) => assets.layers[name] =
+                new TileLayer(layer, assets, image),
         ),
     );
+    order.push(name);
   }
+  order.sort((first, second) => {
+    return raw.layers[first].depth > raw.layers[second].depth;
+  });
+  assets.order = order;
   return Promise.all(promises).then(
       (value) => {
         return assets;
@@ -183,6 +177,7 @@ export default function GameContainer(props) {
       <Typography variant='h4' component='h1' gutterBottom>
             Play with another player
       </Typography>
+      <CopyTooltip text="copy session" copy={session.id} />
       <Container maxWidth='sm'>
         <GameBox />
       </Container>
@@ -209,6 +204,8 @@ function GameCanvas(props) {
   const session = props.session;
   const assets = props.assets;
 
+  const stage = React.useRef();
+
   const aspect = assets.width / assets.height;
   const [canvasSize, setCanvasSize] = React.useState(getWidthHeight(aspect));
   React.useEffect(() => {
@@ -219,37 +216,83 @@ function GameCanvas(props) {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  const [socket, setSocket] = React.useState(null);
+
+  const [field, setField] = React.useState(null);
+
   React.useEffect(() => {
     const ws = new WS(session.key);
 
-    const channel = ws.subscribe(session.id, (message) => {
-      console.log(message);
+    const ch = ws.subscribe(session.id, (message) => {
+      setField(message.data.Table);
     });
 
+    setSocket(ws);
+
     return () => {
-      channel.unsubscribe();
+      ch.unsubscribe();
       ws.disconnect();
     };
   }, []);
 
+  if (!socket || !field) {
+    return null;
+  }
+
+  const handleClick = (e) => {
+    const node = stage.current;
+    const transform = node.getAbsoluteTransform().copy().invert();
+    const pos = node.getStage().getPointerPosition();
+    const {x, y} = transform.point(pos);
+    const col = Math.floor(x / assets.cellWidth);
+    const row = Math.floor(y / assets.cellHeight);
+    socket.send({
+      Type: 'click',
+      X: col,
+      Y: row,
+    })
+        .catch((error) =>{
+          console.log('channel error', error);
+        });
+  };
+
+  const cellStates = {};
+  for (const name of assets.order) {
+    const layerStates = [];
+    for (let x = 0; x < field[name].length; x++) {
+      const rows = field[name][x];
+      for (let y = 0; y < rows.length; y++) {
+        layerStates.push(assets.layers[name].tile(rows[y], x, y));
+      }
+    }
+    cellStates[name] = layerStates;
+  }
+  console.log(cellStates);
 
   return (
     <Stage width={canvasSize.width} height={canvasSize.height}
       scaleX={canvasSize.width / assets.width}
-      scaleY={canvasSize.height / assets.height}>
+      scaleY={canvasSize.height / assets.height}
+      onClick={handleClick}
+      ref={stage}>
       <Layer>
         <Image
           image={assets.background}
         />
       </Layer>
-      <Layer>
-        <Image
-          {...assets.layers.main.tile(1, 2, 1)}
-        />
-        <Image
-          {...assets.layers.main.tile(0, 1, 1)}
-        />
-      </Layer>
+      {assets.order.map((name) => {
+        return (
+          <Layer key={name}>
+            {cellStates[name].map((val, index) => {
+              return (
+                <Image key={index}
+                  {...val}
+                />
+              );
+            })}
+          </Layer>
+        );
+      })}
     </Stage>
   );
 }
