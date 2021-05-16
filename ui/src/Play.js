@@ -3,7 +3,7 @@ import Box from '@material-ui/core/Box';
 import Container from '@material-ui/core/Container';
 import Typography from '@material-ui/core/Typography';
 
-import {Stage, Layer, Image} from 'react-konva';
+import {Stage, Layer, Image, Text} from 'react-konva';
 
 import {useHistory} from 'react-router-dom';
 import {useAlert} from 'react-alert';
@@ -120,13 +120,13 @@ function transformAssets(raw) {
   );
 }
 
-
 export default function GameContainer(props) {
-  const history = useHistory();
   const alert = useAlert();
+  const history = useHistory();
   const [session, setSession] = React.useContext(StoreContext);
 
   const [assets, setAssets] = React.useState(null);
+  const [player, setPlayer] = React.useState(null);
 
   function loadAssets(gameId) {
     API.get(`games/${gameId}/assets`)
@@ -147,8 +147,13 @@ export default function GameContainer(props) {
       alertReturnHome(history, alert, 'No session found');
       return;
     }
-    API.get(`matches/info/${session.id}`)
+    API.get(`matches/info/${session.id}`, {
+      params: {
+        key: session.key,
+      },
+    })
         .then((res) => {
+          setPlayer(res.data.playerId);
           loadAssets(res.data.gameId);
         })
         .catch((error) => {
@@ -175,8 +180,13 @@ export default function GameContainer(props) {
   return (
     <Box my={4}>
       <Typography variant='h4' component='h1' gutterBottom>
-            Play with another player
+          Play with another player
       </Typography>
+      {player !== null &&
+        <Typography variant='h5' gutterBottom>
+          Player: {player}
+        </Typography>
+      }
       <CopyTooltip text="copy session" copy={session.id} />
       <Container maxWidth='sm'>
         <GameBox />
@@ -217,14 +227,21 @@ function GameCanvas(props) {
   }, []);
 
   const [socket, setSocket] = React.useState(null);
-
   const [field, setField] = React.useState(null);
+  const [gameEnd, setGameEnd] = React.useState('');
 
   React.useEffect(() => {
     const ws = new WS(session.key);
 
     const ch = ws.subscribe(session.id, (message) => {
       setField(message.data.Table);
+      if (message.data.Event) {
+        const event = message.data.Event;
+        switch (event.Type) {
+          case 'win':
+            setGameEnd(`Player ${event.Player} win!`);
+        }
+      }
     });
 
     setSocket(ws);
@@ -240,6 +257,9 @@ function GameCanvas(props) {
   }
 
   const handleClick = (e) => {
+    if (gameEnd) {
+      return;
+    }
     const node = stage.current;
     const transform = node.getAbsoluteTransform().copy().invert();
     const pos = node.getStage().getPointerPosition();
@@ -267,7 +287,6 @@ function GameCanvas(props) {
     }
     cellStates[name] = layerStates;
   }
-  console.log(cellStates);
 
   return (
     <Stage width={canvasSize.width} height={canvasSize.height}
@@ -293,6 +312,19 @@ function GameCanvas(props) {
           </Layer>
         );
       })}
+      <Layer>
+        <Text
+          text={gameEnd}
+          fontSize={85}
+          fill='red'
+          width={assets.width}
+          height={assets.height * 0.5}
+          align='center'
+          verticalAlign='middle'
+          x={0}
+          y={assets.height * 0.25}
+        />
+      </Layer>
     </Stage>
   );
 }
