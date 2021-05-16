@@ -141,13 +141,11 @@ export default function GameContainer(props) {
           transformAssets(data).then(
               (assets) => setAssets(assets),
           );
-        });
-    /*
+        })
         .catch((error) => {
           resetSession(setSession);
           alertReturnHome(history, alert, 'Assets unavailable');
         });
-        */
   };
   // Reset session on exit
   React.useEffect(() => {
