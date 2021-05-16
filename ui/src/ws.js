@@ -14,6 +14,7 @@ export default class WS {
         {
           sockjsTransports: ['websocket'],
           debug: true,
+          subscribeEndpoint: '/connection/websocket',
         },
     );
     this.centrifuge.setToken(token);
@@ -22,6 +23,10 @@ export default class WS {
 
   subscribe(channel, cb) {
     return this.centrifuge.subscribe(channel, cb);
+  }
+
+  send(data) {
+    return this.centrifuge.send(data);
   }
 
   disconnect() {
