@@ -147,12 +147,13 @@ message MatchesServiceNewResponse {
 
 message MatchesServiceInfoRequest {
   string session = 1;
-  bool new = 2;
+  string key = 2;
 }
 
 message MatchesServiceInfoResponse {
   int32 game_id = 1;
-  string key = 2;
+  int32 player_id = 2;
+  string key = 3;
 }
 
 service MatchesService {
