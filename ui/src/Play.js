@@ -55,13 +55,17 @@ function loadImage(data) {
 }
 
 class TileLayer {
-  constructor(rawLayer, image) {
+  constructor(rawLayer, field, image) {
     this.image = image;
-    this.width = rawLayer.width;
-    this.height = rawLayer.height;
+    this.tileRealWidth = rawLayer.width;
+    this.tileRealHeight = rawLayer.height;
     this.depth = rawLayer.depth;
-    this.cols = Math.floor(this.image.width / this.width);
-    this.rows = Math.floor(this.image.height / this.height);
+    this.cols = Math.floor(this.image.width / this.tileRealWidth);
+    this.rows = Math.floor(this.image.height / this.tileRealHeight);
+    this.tileWidth = field.cellWidth;
+    this.tileHeight = field.cellHeight;
+    this.scaleX = this.tileWidth / this.tileRealWidth;
+    this.scaleY = this.tileHeight / this.tileRealHeight;
   }
 
   tile(index, x, y) {
@@ -72,15 +76,15 @@ class TileLayer {
     }
     const props = {
       image: this.image,
-      x: x * this.width,
-      y: y * this.height,
-      width: this.width,
-      height: this.height,
+      x: x * this.tileWidth,
+      y: y * this.tileHeight,
+      width: this.tileWidth,
+      height: this.tileHeight,
       crop: {
-        x: col * this.width,
-        y: row * this.height,
-        width: this.width,
-        height: this.height,
+        x: col * this.tileRealWidth,
+        y: row * this.tileRealHeight,
+        width: this.tileRealWidth,
+        height: this.tileRealHeight,
       },
     };
     return props;
@@ -90,20 +94,19 @@ class TileLayer {
 function transformAssets(raw) {
   const assets = {};
   const promises = [];
+  assets.rows = raw.field.rows;
+  assets.cols = raw.field.cols;
   if (raw.background.texture) {
     promises.push(
         loadImage(raw.background.texture).then(
-            (image) => {
-              assets.background = image;
-              assets.width = image.width;
-              assets.height = image.height;
-            },
+            (image) => assets.background = image,
         ),
     );
-  } else {
-    assets.width = raw.background.width;
-    assets.height = raw.background.height;
   }
+  assets.width = raw.background.width;
+  assets.height = raw.background.height;
+  assets.cellWidth = assets.width / assets.cols;
+  assets.cellHeight = assets.height / assets.rows;
   assets.layers = {};
   for (const name in raw.layers) {
     if (!Object.prototype.hasOwnProperty.call(raw.layers, name)) {
@@ -115,7 +118,8 @@ function transformAssets(raw) {
     }
     promises.push(
         loadImage(layer.texture).then(
-            (image) => assets.layers[name] = new TileLayer(layer, image),
+            (image) => assets.layers[name] =
+                new TileLayer(layer, assets, image),
         ),
     );
   }
@@ -244,10 +248,22 @@ function GameCanvas(props) {
       </Layer>
       <Layer>
         <Image
-          {...assets.layers.main.tile(1, 2, 1)}
+          {...assets.layers.main.tile(0, 0, 0)}
         />
         <Image
-          {...assets.layers.main.tile(0, 1, 1)}
+          {...assets.layers.main.tile(1, 1, 0)}
+        />
+        <Image
+          {...assets.layers.main.tile(2, 2, 0)}
+        />
+        <Image
+          {...assets.layers.main.tile(1, 0, 1)}
+        />
+        <Image
+          {...assets.layers.main.tile(1, 1, 1)}
+        />
+        <Image
+          {...assets.layers.main.tile(1, 2, 1)}
         />
       </Layer>
     </Stage>
