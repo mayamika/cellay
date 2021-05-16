@@ -11,6 +11,7 @@ import {useAlert} from 'react-alert';
 import {StoreContext} from './store';
 import API from './api';
 import WS from './ws';
+import CopyTooltip from './components/CopyTooltip';
 
 
 function alertReturnHome(history, alert, msg) {
@@ -176,6 +177,7 @@ export default function GameContainer(props) {
       <Typography variant='h4' component='h1' gutterBottom>
             Play with another player
       </Typography>
+      <CopyTooltip text="copy session" copy={session.id} />
       <Container maxWidth='sm'>
         <GameBox />
       </Container>
