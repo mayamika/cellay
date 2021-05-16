@@ -43,6 +43,41 @@ function importImage(data) {
   return image;
 }
 
+class TileLayer {
+  constructor(rawLayer) {
+    this.image = importImage(rawLayer.texture);
+    this.width = rawLayer.width;
+    this.height = rawLayer.height;
+    this.depth = rawLayer.depth;
+    console.log('Image', this.image.width, this.image.height);
+    this.cols = Math.floor(this.image.width / this.width);
+    this.rows = Math.floor(this.image.height / this.height);
+  }
+
+  tile(index, x, y) {
+    const row = Math.floor(index / this.cols);
+    const col = index % this.cols;
+    if (row > this.rows) {
+      throw new Error('incorrect index');
+    }
+    const props = {
+      image: this.image,
+      x: x * this.width,
+      y: y * this.height,
+      width: this.width,
+      height: this.height,
+      crop: {
+        x: col * this.width,
+        y: row * this.height,
+        width: this.width,
+        height: this.height,
+      },
+    };
+    console.log(props);
+    return props;
+  }
+}
+
 function transformAssets(raw) {
   const assets = {};
   if (raw.background.texture) {
@@ -52,6 +87,17 @@ function transformAssets(raw) {
   } else {
     assets.width = raw.background.width;
     assets.height = raw.background.height;
+  }
+  assets.layers = {};
+  for (const name in raw.layers) {
+    if (!Object.prototype.hasOwnProperty.call(raw.layers, name)) {
+      continue;
+    }
+    const layer = raw.layers[name];
+    if (!layer.texture) {
+      continue;
+    }
+    assets.layers[name] = new TileLayer(layer);
   }
   return assets;
 }
@@ -79,6 +125,7 @@ export default function GameContainer(props) {
   React.useEffect(() => {
     if (!session.id) {
       alertReturnHome(history, alert, 'No session found');
+      return;
     }
     API.get(`matches/info/${session.id}`)
         .then((res) => {
@@ -167,6 +214,14 @@ function GameCanvas(props) {
       <Layer>
         <Image
           image={assets.background}
+        />
+      </Layer>
+      <Layer>
+        <Image
+          {...assets.layers.main.tile(1, 2, 1)}
+        />
+        <Image
+          {...assets.layers.main.tile(0, 1, 1)}
         />
       </Layer>
     </Stage>
