@@ -18,8 +18,9 @@ import (
 )
 
 var (
-	ErrMatchNotFound = errors.New("match not found")
-	ErrAllKeysGiven  = errors.New("all player keys were given")
+	ErrInvalidPlayerKey = errors.New("invalid player key")
+	ErrMatchNotFound    = errors.New("match not found")
+	ErrAllKeysGiven     = errors.New("all player keys were given")
 )
 
 type Manager struct {
@@ -31,6 +32,10 @@ type Manager struct {
 	mu             sync.RWMutex
 	matches        map[string]*match
 	playerSessions map[string]string
+}
+
+type PlayerInfo struct {
+	PlayerID int32
 }
 
 type MatchInfo struct {
@@ -106,6 +111,19 @@ func (m *Manager) NewPlayerKey(session string) (string, error) {
 		return "", ErrAllKeysGiven
 	}
 	return key, nil
+}
+
+func (m *Manager) PlayerInfo(key string) (*PlayerInfo, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	session, ok := m.playerSessions[key]
+	if !ok {
+		return nil, ErrInvalidPlayerKey
+	}
+	ma := m.matches[session]
+	return &PlayerInfo{
+		PlayerID: int32(ma.checkPlayerKey(key)),
+	}, nil
 }
 
 func (m *Manager) MatchInfo(session string) (*MatchInfo, error) {

@@ -265,10 +265,10 @@
             "type": "string"
           },
           {
-            "name": "new",
+            "name": "key",
             "in": "query",
             "required": false,
-            "type": "boolean"
+            "type": "string"
           }
         ],
         "tags": [
@@ -498,6 +498,10 @@
       "type": "object",
       "properties": {
         "gameId": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "playerId": {
           "type": "integer",
           "format": "int32"
         },
