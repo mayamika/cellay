@@ -3,7 +3,7 @@ import Box from '@material-ui/core/Box';
 import Container from '@material-ui/core/Container';
 import Typography from '@material-ui/core/Typography';
 
-import {Stage, Layer, Image} from 'react-konva';
+import {Stage, Layer, Image, Text} from 'react-konva';
 
 import {useHistory} from 'react-router-dom';
 import {useAlert} from 'react-alert';
@@ -227,15 +227,21 @@ function GameCanvas(props) {
   }, []);
 
   const [socket, setSocket] = React.useState(null);
-
   const [field, setField] = React.useState(null);
+  const [gameEnd, setGameEnd] = React.useState('');
 
   React.useEffect(() => {
     const ws = new WS(session.key);
 
     const ch = ws.subscribe(session.id, (message) => {
       setField(message.data.Table);
-      console.log(message.data);
+      if (message.data.Event) {
+        const event = message.data.Event;
+        switch (event.Type) {
+          case 'win':
+            setGameEnd(`Player ${event.Player} win!`);
+        }
+      }
     });
 
     setSocket(ws);
@@ -251,6 +257,9 @@ function GameCanvas(props) {
   }
 
   const handleClick = (e) => {
+    if (gameEnd) {
+      return;
+    }
     const node = stage.current;
     const transform = node.getAbsoluteTransform().copy().invert();
     const pos = node.getStage().getPointerPosition();
@@ -303,6 +312,19 @@ function GameCanvas(props) {
           </Layer>
         );
       })}
+      <Layer>
+        <Text
+          text={gameEnd}
+          fontSize={85}
+          fill='red'
+          width={assets.width}
+          height={assets.height * 0.5}
+          align='center'
+          verticalAlign='middle'
+          x={0}
+          y={assets.height * 0.25}
+        />
+      </Layer>
     </Stage>
   );
 }
