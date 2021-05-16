@@ -120,13 +120,13 @@ function transformAssets(raw) {
   );
 }
 
-
 export default function GameContainer(props) {
-  const history = useHistory();
   const alert = useAlert();
+  const history = useHistory();
   const [session, setSession] = React.useContext(StoreContext);
 
   const [assets, setAssets] = React.useState(null);
+  const [player, setPlayer] = React.useState(null);
 
   function loadAssets(gameId) {
     API.get(`games/${gameId}/assets`)
@@ -147,8 +147,13 @@ export default function GameContainer(props) {
       alertReturnHome(history, alert, 'No session found');
       return;
     }
-    API.get(`matches/info/${session.id}`)
+    API.get(`matches/info/${session.id}`, {
+      params: {
+        key: session.key,
+      },
+    })
         .then((res) => {
+          setPlayer(res.data.playerId);
           loadAssets(res.data.gameId);
         })
         .catch((error) => {
@@ -175,8 +180,13 @@ export default function GameContainer(props) {
   return (
     <Box my={4}>
       <Typography variant='h4' component='h1' gutterBottom>
-            Play with another player
+          Play with another player
       </Typography>
+      {player !== null &&
+        <Typography variant='h5' gutterBottom>
+          Player: {player}
+        </Typography>
+      }
       <CopyTooltip text="copy session" copy={session.id} />
       <Container maxWidth='sm'>
         <GameBox />
@@ -225,6 +235,7 @@ function GameCanvas(props) {
 
     const ch = ws.subscribe(session.id, (message) => {
       setField(message.data.Table);
+      console.log(message.data);
     });
 
     setSocket(ws);
@@ -267,7 +278,6 @@ function GameCanvas(props) {
     }
     cellStates[name] = layerStates;
   }
-  console.log(cellStates);
 
   return (
     <Stage width={canvasSize.width} height={canvasSize.height}
