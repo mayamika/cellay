@@ -128,6 +128,11 @@ func gameAssetsToProto(assets *gamesstorage.GameAssets) *cellayv1.GamesServiceGe
 			Cols: assets.Field.Cols,
 		},
 		Layers: layers,
+		Background: &cellayv1.GameAssetsTexture{
+			Width:   assets.Background.Width,
+			Height:  assets.Background.Height,
+			Texture: assets.Background.Texture,
+		},
 	}
 }
 
@@ -148,6 +153,11 @@ func gameFromProto(req *cellayv1.GamesServiceAddRequest) *gamesstorage.Game {
 		Field: gamesstorage.GameAssetsField{
 			Rows: req.GetField().GetRows(),
 			Cols: req.GetField().GetCols(),
+		},
+		Background: gamesstorage.GameAssetsTexture{
+			Width:   req.GetBackground().GetWidth(),
+			Height:  req.GetBackground().GetHeight(),
+			Texture: req.GetBackground().GetTexture(),
 		},
 		Layers: layers,
 	}

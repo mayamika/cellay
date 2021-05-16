@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"github.com/rs/cors"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -17,7 +18,9 @@ import (
 type ServiceRegisterFunc func(ctx context.Context, gwMux *runtime.ServeMux, conn *grpc.ClientConn) error
 
 type Server struct {
+	logger               *zap.Logger
 	mux                  *http.ServeMux
+	cors                 *cors.Cors
 	grpcClient           *grpc.ClientConn
 	serviceRegisterFuncs []ServiceRegisterFunc
 }
@@ -39,18 +42,20 @@ type Params struct {
 func New(p Params) *Server { //nolint: gocritic
 	var (
 		logger = p.Logger.Named("http")
-		server = &Server{
-			mux: http.NewServeMux(),
+		s      = &Server{
+			logger: logger,
+			mux:    http.NewServeMux(),
+			cors:   newCors(),
 		}
 		httpServer = &http.Server{
 			Addr:    p.Config.Addr,
-			Handler: server.mux,
+			Handler: withLogging(logger, s.mux),
 		}
 	)
 	p.LC.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
 			var err error
-			server.grpcClient, err = grpc.DialContext(
+			s.grpcClient, err = grpc.DialContext(
 				ctx,
 				p.GRPCConfig.Addr,
 				grpc.WithInsecure(),
@@ -59,12 +64,13 @@ func New(p Params) *Server { //nolint: gocritic
 				return fmt.Errorf("can't dial grpc server: %w", err)
 			}
 			gwMux := runtime.NewServeMux()
-			for _, register := range server.serviceRegisterFuncs {
-				if err := register(ctx, gwMux, server.grpcClient); err != nil {
+			for _, register := range s.serviceRegisterFuncs {
+				if err := register(ctx, gwMux, s.grpcClient); err != nil {
 					return fmt.Errorf("can't register service: %w", err)
 				}
 			}
-			server.mux.Handle(`/api/v1/`, http.StripPrefix(`/api/v1`, gwMux))
+			s.setAssets()
+			s.Handle(`/api/v1/`, http.StripPrefix(`/api/v1`, gwMux))
 			go func() {
 				defer func() { _ = p.Shutdowner.Shutdown() }()
 				if err := httpServer.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
@@ -74,20 +80,48 @@ func New(p Params) *Server { //nolint: gocritic
 			return nil
 		},
 		OnStop: func(ctx context.Context) error {
-			defer func() { _ = server.grpcClient.Close() }()
+			defer func() { _ = s.grpcClient.Close() }()
 			if err := httpServer.Shutdown(ctx); err != nil {
 				return fmt.Errorf("http server shutdown failed: %w", err)
 			}
 			return nil
 		},
 	})
-	return server
+	return s
 }
 
 func (s *Server) Handle(path string, handler http.Handler) {
-	s.mux.Handle(path, handler)
+	s.mux.Handle(path, s.cors.Handler(handler))
 }
 
 func (s *Server) RegisterService(funcs ...ServiceRegisterFunc) {
 	s.serviceRegisterFuncs = append(s.serviceRegisterFuncs, funcs...)
+}
+
+func newCors() *cors.Cors {
+	return cors.New(cors.Options{
+		AllowedMethods: []string{
+			http.MethodGet,
+			http.MethodPost,
+			http.MethodPut,
+			http.MethodHead,
+			http.MethodDelete,
+			http.MethodPatch,
+			http.MethodOptions,
+		},
+	})
+}
+
+func withLogging(logger *zap.Logger, h http.Handler) http.HandlerFunc {
+	return func(rw http.ResponseWriter, r *http.Request) {
+		logger.Debug("request",
+			zap.String("host", r.URL.Host),
+			zap.String("method", r.Method),
+			zap.String("scheme", r.URL.Scheme),
+			zap.String("path", r.URL.Path),
+			zap.String("query", r.URL.Query().Encode()),
+			zap.String("remote", r.RemoteAddr),
+		)
+		h.ServeHTTP(rw, r)
+	}
 }

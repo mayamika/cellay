@@ -2,7 +2,7 @@
   "name": "create-react-app",
   "version": "4.0.0",
   "private": true,
-  "proxy": "http://localhost:3411",
+  "proxy": "http://localhost:8080",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
@@ -13,11 +13,14 @@
     "@material-ui/core": "latest",
     "@material-ui/icons": "^4.11.2",
     "axios": "^0.21.1",
+    "centrifuge": "^2.7.5",
     "clsx": "latest",
+    "konva": "^7.2.5",
     "react": "latest",
     "react-alert": "^7.0.3",
     "react-alert-template-mui": "^1.0.7",
     "react-dom": "latest",
+    "react-konva": "^17.0.2-0",
     "react-router": "^5.2.0",
     "react-router-dom": "^5.2.0",
     "react-scripts": "latest"

@@ -70,5 +70,5 @@ func onStart(
 	_ *gamesstorage.Storage,
 	matchesManager *matchesmanager.Manager,
 ) {
-	httpServer.Handle(`/connect`, matchesManager.WebsocketHandler())
+	httpServer.Handle(`/connection/websocket`, matchesManager.WebsocketHandler())
 }

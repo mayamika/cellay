@@ -16,6 +16,7 @@ import AlertTemplate from 'react-alert-template-mui';
 import Menu from './components/Menu';
 import GameGallery from './GameGallery';
 import ConnectPage from './Connect';
+import GameContainer from './Play';
 import StoreProvider from './store';
 
 const useStyles = makeStyles((theme) => ({
@@ -23,13 +24,14 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     flex: '1 1 auto',
     flexFlow: 'column',
-    height: '100%',
+    minHeight: '100vh',
+    position: 'relative',
   },
   footer: {
-    display: 'flex',
-    flex: '0 1 40px',
-    flexFlow: 'column',
-    height: '100%',
+    position: 'absolute',
+    left: 0,
+    bottom: 0,
+    right: 0,
   },
 }));
 
@@ -47,8 +49,8 @@ function Copyright() {
   return (
     <Typography variant="body2" color="textSecondary" align="center">
       {'Copyright © '}
-      <Link color="inherit" href="https://material-ui.com/">
-        Your Website
+      <Link color="inherit" href="https://github.com/mayamika/cellay">
+        Cellay
       </Link>{' '}
       {new Date().getFullYear()}
       {'.'}
@@ -69,14 +71,17 @@ export default function App() {
               <Route path="/connect">
                 <ConnectPage />
               </Route>
+              <Route path="/play">
+                <GameContainer />
+              </Route>
               <Route path="/">
                 <GameGallery />
               </Route>
             </Switch>
+            <Box className={classes.footer}>
+              <Copyright />
+            </Box>
           </Container>
-          <Box className={classes.footer}>
-            <Copyright />
-          </Box>
         </Router>
       </AlertProvider>
     </StoreProvider>

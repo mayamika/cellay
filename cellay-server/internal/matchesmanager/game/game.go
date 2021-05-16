@@ -100,6 +100,12 @@ func (g *Game) HandleClick(click *Click) (*State, error) {
 	return stateCopy(g.state), nil
 }
 
+func (g *Game) State() *State {
+	g.mu.Lock()
+	defer g.mu.Unlock()
+	return stateCopy(g.state)
+}
+
 func (g *Game) HandleMove(move *Move) (*State, error) {
 	g.mu.Lock()
 	defer g.mu.Unlock()

@@ -172,9 +172,20 @@ generate-go: $(CODEGEN_TOOLS)
 GO_BUILD_TARGET_CELLAY_SERVER := $(BIN_OUTPUT_DIR)/cellay-server
 GO_BUILD_TARGETS = $(GO_BUILD_TARGET_CELLAY_SERVER)
 
+STATIC_UI_DIST := ./cellay-server/internal/httpserver/dist
+.PHONY: $(STATIC_UI_DIST)
+$(STATIC_UI_DIST):
+	$(RM) -r $(STATIC_UI_DIST) && cp -r ./ui/build $(STATIC_UI_DIST)
+
+GO_BUILD_TAGS :=
+ifeq ($(STATIC_UI), true)
+GO_BUILD_TAGS += static
+$(GO_BUILD_TARGET_CELLAY_SERVER): $(STATIC_UI_DIST)
+endif
+
 .PHONY: $(GO_BUILD_TARGETS)
 $(GO_BUILD_TARGETS): | $(BIN_OUTPUT_DIR)
-	$(GO) build -o $(BIN_OUTPUT_DIR) ./cmd/...
+	$(GO) build -o $(BIN_OUTPUT_DIR) -tags "$(GO_BUILD_TAGS)" ./cmd/...
 
 # Test
 

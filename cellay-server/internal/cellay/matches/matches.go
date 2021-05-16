@@ -59,18 +59,24 @@ func (s *Service) Info(
 ) (*cellayv1.MatchesServiceInfoResponse, error) {
 	info, err := s.manager.MatchInfo(req.GetSession())
 	if err != nil {
-		return nil, errInternalf("can't get match info: %v", err)
+		return nil, status.Errorf(codes.NotFound, "can't get match info: %v", err)
 	}
-	res := &cellayv1.MatchesServiceInfoResponse{
-		GameId: info.GameID,
-	}
-	if req.GetNew() {
-		res.Key, err = s.manager.NewPlayerKey(req.GetSession())
+	key := req.GetKey()
+	if key == "" {
+		key, err = s.manager.NewPlayerKey(req.GetSession())
 		if err != nil {
 			return nil, errInternalf("can't get player key: %v", err)
 		}
 	}
-	return res, nil
+	playerInfo, err := s.manager.PlayerInfo(key)
+	if err != nil {
+		return nil, errInternalf("can't get player info: %v", err)
+	}
+	return &cellayv1.MatchesServiceInfoResponse{
+		GameId:   info.GameID,
+		PlayerId: playerInfo.PlayerID,
+		Key:      key,
+	}, nil
 }
 
 func errInternalf(format string, args ...interface{}) error {
