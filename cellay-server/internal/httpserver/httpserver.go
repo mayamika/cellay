@@ -69,6 +69,7 @@ func New(p Params) *Server { //nolint: gocritic
 					return fmt.Errorf("can't register service: %w", err)
 				}
 			}
+			s.setAssets()
 			s.Handle(`/api/v1/`, http.StripPrefix(`/api/v1`, gwMux))
 			go func() {
 				defer func() { _ = p.Shutdowner.Shutdown() }()
