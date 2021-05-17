@@ -239,8 +239,12 @@ function GameCanvas(props) {
       if (message.data.Event) {
         const event = message.data.Event;
         switch (event.Type) {
+          case 'draw':
+            setGameEnd(`Draw!`);
+            break;
           case 'win':
             setGameEnd(`Player ${event.Player} win!`);
+            break;
         }
       }
     });
