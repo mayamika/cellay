@@ -501,6 +501,9 @@
           "type": "integer",
           "format": "int32"
         },
+        "gameName": {
+          "type": "string"
+        },
         "playerId": {
           "type": "integer",
           "format": "int32"

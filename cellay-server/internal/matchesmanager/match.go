@@ -1,11 +1,12 @@
 package matchesmanager
 
 import (
+	"github.com/mayamika/cellay/cellay-server/internal/gamesstorage"
 	"github.com/mayamika/cellay/cellay-server/internal/matchesmanager/game"
 )
 
 type match struct {
-	gameID        int32
+	gameInfo      *gamesstorage.GameInfo
 	game          *game.Game
 	keysRequested int
 	keys          []string

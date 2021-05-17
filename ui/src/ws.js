@@ -4,7 +4,7 @@ const isSecure = (window.location.protocol === 'https:' ||
   process.env.HTTPS === 'true');
 const protocol = isSecure ? 'wss' : 'ws';
 const host = process.env.HOST || window.location.hostname;
-const port = process.env.PORT || window.location.port;
+const port = 8080;
 const centrifugeURL = `${protocol}://${host}:${port}/connection/websocket`;
 
 export default class WS {

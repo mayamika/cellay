@@ -42,6 +42,7 @@ function GameCard(props) {
           setSession({
             id: data.session,
             key: data.key,
+            gameName: game.name,
           });
           console.log(`new match`, data);
           history.push(`/play`);

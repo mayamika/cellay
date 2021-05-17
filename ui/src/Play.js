@@ -26,6 +26,7 @@ function resetSession(setSession) {
   setSession({
     key: null,
     id: null,
+    gameName: null,
   });
 }
 
@@ -180,7 +181,7 @@ export default function GameContainer(props) {
   return (
     <Box my={4}>
       <Typography variant='h4' component='h1' gutterBottom>
-          Play with another player
+        {session.gameName}
       </Typography>
       {player !== null &&
         <Typography variant='h5' gutterBottom>

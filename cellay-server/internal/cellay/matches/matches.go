@@ -74,6 +74,7 @@ func (s *Service) Info(
 	}
 	return &cellayv1.MatchesServiceInfoResponse{
 		GameId:   info.GameID,
+		GameName: info.GameName,
 		PlayerId: playerInfo.PlayerID,
 		Key:      key,
 	}, nil

@@ -152,8 +152,9 @@ message MatchesServiceInfoRequest {
 
 message MatchesServiceInfoResponse {
   int32 game_id = 1;
-  int32 player_id = 2;
-  string key = 3;
+  string game_name = 2;
+  int32 player_id = 3;
+  string key = 4;
 }
 
 service MatchesService {

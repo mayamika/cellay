@@ -43,6 +43,7 @@ export default function ConnectPage() {
           setSession({
             id: text,
             key: data.key,
+            gameName: data.gameName,
           });
           console.log(data);
           history.push(`/play`);
@@ -72,4 +73,3 @@ export default function ConnectPage() {
     </Box>
   );
 }
-

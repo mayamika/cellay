@@ -39,7 +39,8 @@ type PlayerInfo struct {
 }
 
 type MatchInfo struct {
-	GameID int32
+	GameID   int32
+	GameName string
 }
 
 const (
@@ -133,8 +134,10 @@ func (m *Manager) MatchInfo(session string) (*MatchInfo, error) {
 	if !ok {
 		return nil, ErrMatchNotFound
 	}
+	info := ma.gameInfo
 	return &MatchInfo{
-		GameID: ma.gameID,
+		GameID:   info.ID,
+		GameName: info.Name,
 	}, nil
 }
 
@@ -321,6 +324,10 @@ func newGame(ctx context.Context, storage *gamesstorage.Storage, gameID int32) (
 }
 
 func (m *Manager) newMatch(ctx context.Context, gameID int32) (string, error) {
+	info, err := m.storage.GameInfo(ctx, gameID)
+	if err != nil {
+		return "", fmt.Errorf("can't fetch game info: %w", err)
+	}
 	g, err := newGame(ctx, m.storage, gameID)
 	if err != nil {
 		return "", fmt.Errorf("can't create game: %w", err)
@@ -337,9 +344,9 @@ func (m *Manager) newMatch(ctx context.Context, gameID int32) (string, error) {
 		return "", fmt.Errorf("can't generate match player keys: %w", err)
 	}
 	m.matches[session] = &match{
-		gameID: gameID,
-		game:   g,
-		keys:   keys,
+		gameInfo: info,
+		game:     g,
+		keys:     keys,
 	}
 	for _, key := range keys {
 		m.playerSessions[key] = session
