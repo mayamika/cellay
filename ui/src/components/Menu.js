@@ -42,7 +42,7 @@ function renderPath(path) {
     case '/connect':
       return 'Connect';
     default:
-      return '?';
+      return '';
   }
 }
 

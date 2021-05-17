@@ -6,7 +6,7 @@ import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 
 import {useAlert} from 'react-alert';
-import {useHistory} from 'react-router-dom';
+import {useHistory, useParams} from 'react-router-dom';
 
 import API from './api';
 import {StoreContext} from './store';
@@ -36,12 +36,12 @@ export default function ConnectPage() {
     // Use textFieldInput
   }
 
-  function textSubmit() {
-    API.get(`matches/info/${text}`)
+  function connect(sessionId) {
+    API.get(`matches/info/${sessionId}`)
         .then((res) => {
           const data = res.data;
           setSession({
-            id: text,
+            id: sessionId,
             key: data.key,
             gameName: data.gameName,
           });
@@ -52,7 +52,19 @@ export default function ConnectPage() {
           alert.error('session is invalid');
         });
 
-    console.log(text);
+    console.log(sessionId);
+  }
+
+  function textSubmit() {
+    connect(text);
+  }
+
+  const {sessionId} = useParams();
+  if (sessionId) {
+    React.useEffect(() => {
+      console.log(`setting session ${sessionId}`);
+      connect(sessionId);
+    }, []);
   }
 
   return (

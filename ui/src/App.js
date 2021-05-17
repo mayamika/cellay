@@ -68,6 +68,9 @@ export default function App() {
           <Menu />
           <Container className={classes.content} maxWidth="lg">
             <Switch>
+              <Route path="/connect/:sessionId">
+                <ConnectPage />
+              </Route>
               <Route path="/connect">
                 <ConnectPage />
               </Route>

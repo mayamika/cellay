@@ -180,15 +180,27 @@ export default function GameContainer(props) {
 
   return (
     <Box my={4}>
-      <Typography variant='h4' component='h1' gutterBottom>
-        {session.gameName}
-      </Typography>
+      <Box display='flex'>
+        <Box flexGrow={1}>
+          <Typography variant='h4' component='h1' gutterBottom>
+            {session.gameName}
+          </Typography>
+        </Box>
+        <Box>
+          <CopyTooltip text="session" copy={session.id} />
+        </Box>
+        <Box>
+          <CopyTooltip
+            text="invitation link"
+            copy={`${window.location.host}/connect/${session.id}`}
+          />
+        </Box>
+      </Box>
       {player !== null &&
         <Typography variant='h5' gutterBottom>
           Player: {player}
         </Typography>
       }
-      <CopyTooltip text="copy session" copy={session.id} />
       <Container maxWidth='sm'>
         <GameBox />
       </Container>
