@@ -1,5 +1,5 @@
 imposters_path: "imposters"
-port: 3411
+port: 8080
 host: "localhost"
 watcher: true
 cors:
