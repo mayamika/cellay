@@ -310,6 +310,7 @@ function GameCanvas(props) {
       scaleX={canvasSize.width / assets.width}
       scaleY={canvasSize.height / assets.height}
       onClick={handleClick}
+      onTap={handleClick}
       ref={stage}>
       <Layer>
         <Image
