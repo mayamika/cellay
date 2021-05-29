@@ -18,6 +18,7 @@ import GameGallery from './GameGallery';
 import ConnectPage from './Connect';
 import GameContainer from './Play';
 import StoreProvider from './store';
+import AddGamePage from './AddGame';
 
 const useStyles = makeStyles((theme) => ({
   content: {
@@ -76,6 +77,9 @@ export default function App() {
               </Route>
               <Route path="/play">
                 <GameContainer />
+              </Route>
+              <Route path="/add">
+                <AddGamePage />
               </Route>
               <Route path="/">
                 <GameGallery />

@@ -16,6 +16,7 @@
     "centrifuge": "^2.7.5",
     "clsx": "latest",
     "konva": "^7.2.5",
+    "material-ui-dropzone": "^3.5.0",
     "react": "latest",
     "react-alert": "^7.0.3",
     "react-alert-template-mui": "^1.0.7",

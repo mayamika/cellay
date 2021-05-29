@@ -41,6 +41,8 @@ function renderPath(path) {
       return 'Host Game';
     case '/connect':
       return 'Connect';
+    case '/add':
+      return 'Add Game';
     default:
       return '';
   }
@@ -76,6 +78,12 @@ export default function Menu() {
             {renderPath(location.pathname)}
           </Typography>
 
+          <Button
+            className={classes.navButton}
+            component={RouterLink}
+            to="/add">
+            Add
+          </Button>
           <Button
             className={classes.navButton}
             component={RouterLink}
